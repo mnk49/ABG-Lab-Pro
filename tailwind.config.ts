@@ -18,6 +18,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ["Inter", "sans-serif"],
+      },
       boxShadow: {
         'custom': '0 4px 24px -4px rgba(0, 0, 0, 0.08)',
       },

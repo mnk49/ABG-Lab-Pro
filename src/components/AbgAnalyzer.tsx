@@ -4,36 +4,33 @@ import { useState, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { FileText, Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator } from "lucide-react";
+import { FileText, Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator, RefreshCw } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import html2canvas from 'html2canvas';
 import { PatientDetailsForm } from './PatientDetailsForm';
 import AbgReport from './AbgReport';
 
 type AbgValues = {
-  ph: string;
-  paco2: string;
-  hco3: string;
-  pao2: string;
-  fio2: string;
-  na: string;
-  cl: string;
+  ph: string; paco2: string; hco3: string; pao2: string;
+  fio2: string; na: string; cl: string;
 };
 
 type Interpretation = {
-  acidBaseStatus: string;
-  primaryDisorder: string;
-  compensation: string;
-  summary: string;
+  acidBaseStatus: string; primaryDisorder: string; compensation: string; summary: string;
   compensationAnalysis: {
-    title: string;
-    expected: string;
-    actual: string;
-    interpretation: string;
+    title: string; expected: string; actual: string; interpretation: string;
   } | null;
+};
+
+type PressureUnit = 'mmHg' | 'kPa';
+
+const KPA_TO_MMHG = 7.50062;
+const normalRanges = {
+  mmHg: { paco2: { min: 35, max: 45 }, pao2: { min: 80, max: 100 } },
+  kPa: { paco2: { min: 4.7, max: 6.0 }, pao2: { min: 10.7, max: 13.3 } }
 };
 
 const getStatusColor = (value: number, normalMin: number, normalMax: number) => {
@@ -58,6 +55,7 @@ export const AbgAnalyzer = () => {
   });
   const [patm, setPatm] = useState(760);
   const [respiratoryDuration, setRespiratoryDuration] = useState<'acute' | 'chronic'>('acute');
+  const [pressureUnit, setPressureUnit] = useState<PressureUnit>('mmHg');
   const reportRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,32 +73,29 @@ export const AbgAnalyzer = () => {
     setPatientDetails({ name: "", age: "", mrn: "", hospital: "" });
     setPatm(760);
     setRespiratoryDuration('acute');
+    setPressureUnit('mmHg');
   };
 
   const handleDownload = () => {
     if (reportRef.current) {
       showSuccess("Generating report...");
-      html2canvas(reportRef.current, {
-        scale: 2,
-        backgroundColor: null,
-        useCORS: true,
-      }).then((canvas) => {
-        const link = document.createElement('a');
-        link.download = `abg-report-${patientDetails.mrn || 'patient'}-${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
+      html2canvas(reportRef.current, { scale: 2, backgroundColor: null, useCORS: true })
+        .then((canvas) => {
+          const link = document.createElement('a');
+          link.download = `abg-report-${patientDetails.mrn || 'patient'}-${Date.now()}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        });
     }
   };
 
   const interpretation: Interpretation | null = useMemo(() => {
     const ph = parseFloat(values.ph);
-    const paco2 = parseFloat(values.paco2);
     const hco3 = parseFloat(values.hco3);
+    const paco2Raw = parseFloat(values.paco2);
+    const paco2 = pressureUnit === 'kPa' ? paco2Raw * KPA_TO_MMHG : paco2Raw;
 
-    if (isNaN(ph) || isNaN(paco2) || isNaN(hco3)) {
-      return null;
-    }
+    if (isNaN(ph) || isNaN(paco2) || isNaN(hco3)) return null;
 
     let acidBaseStatus = "Normal";
     if (ph < 7.35) acidBaseStatus = "Acidosis";
@@ -135,11 +130,7 @@ export const AbgAnalyzer = () => {
 
     if (primaryDisorder !== "Normal" && primaryDisorder !== "Mixed") {
         if (isCompensating()) {
-            if (ph >= 7.35 && ph <= 7.45) {
-                compensationStatus = "Fully Compensated";
-            } else {
-                compensationStatus = "Partially Compensated";
-            }
+            compensationStatus = ph >= 7.35 && ph <= 7.45 ? "Fully Compensated" : "Partially Compensated";
         } else {
             compensationStatus = "Uncompensated";
         }
@@ -163,24 +154,6 @@ export const AbgAnalyzer = () => {
             actual: `PaCO₂: ${paco2.toFixed(1)} mmHg`,
             interpretation: interpretationText
         };
-    } else if (primaryDisorder === "Metabolic Alkalosis" || (primaryDisorder === "Metabolic" && acidBaseStatus === "Alkalosis")) {
-        const expectedPaco2 = 0.7 * hco3 + 21;
-        const expectedPaco2Min = expectedPaco2 - 2;
-        const expectedPaco2Max = expectedPaco2 + 2;
-        let interpretationText = "";
-        if (paco2 >= expectedPaco2Min && paco2 <= expectedPaco2Max) {
-            interpretationText = "Compensation is appropriate.";
-        } else if (paco2 < expectedPaco2Min) {
-            interpretationText = "Suggests a co-existing respiratory alkalosis.";
-        } else {
-            interpretationText = "Suggests a co-existing respiratory acidosis.";
-        }
-        compensationAnalysis = {
-            title: "Metabolic Alkalosis Compensation",
-            expected: `PaCO₂: ${expectedPaco2Min.toFixed(1)} - ${expectedPaco2Max.toFixed(1)} mmHg`,
-            actual: `PaCO₂: ${paco2.toFixed(1)} mmHg`,
-            interpretation: interpretationText
-        };
     } else if (primaryDisorder.includes("Respiratory")) {
         let expectedHco3, title, expectedHco3Min, expectedHco3Max;
         if (acidBaseStatus === "Acidosis") {
@@ -195,7 +168,7 @@ export const AbgAnalyzer = () => {
                 expectedHco3Min = expectedHco3;
                 expectedHco3Max = expectedHco3 + 3;
             }
-        } else {
+        } else { // Alkalosis
             if (respiratoryDuration === 'acute') {
                 title = "Acute Respiratory Alkalosis";
                 expectedHco3 = 24 - (2 * (40 - paco2) / 10);
@@ -227,15 +200,12 @@ export const AbgAnalyzer = () => {
     let summary = "Normal ABG.";
     if (primaryDisorder !== "Normal" && primaryDisorder !== "Mixed") {
         summary = `${compensationStatus} ${primaryDisorder.replace(" Acidosis", "").replace(" Alkalosis", "")} ${acidBaseStatus}.`;
-        if (compensationAnalysis && !compensationAnalysis.interpretation.includes("appropriate")) {
-            summary += ` ${compensationAnalysis.interpretation}`;
-        }
     } else if (primaryDisorder === "Mixed") {
         summary = "Mixed acid-base disorder."
     }
 
     return { acidBaseStatus, primaryDisorder, compensation: compensationStatus, summary, compensationAnalysis };
-  }, [values.ph, values.paco2, values.hco3, respiratoryDuration]);
+  }, [values.ph, values.paco2, values.hco3, respiratoryDuration, pressureUnit]);
 
   const anionGapResult = useMemo(() => {
     const na = parseFloat(values.na);
@@ -247,109 +217,82 @@ export const AbgAnalyzer = () => {
     let variant: "success" | "destructive" | "warning" = "success";
     let interpretationText = "Normal anion gap.";
     if (anionGap > 12) {
-      status = "Elevated";
-      variant = "destructive";
+      status = "Elevated"; variant = "destructive";
       interpretationText = "Suggests high anion gap metabolic acidosis (e.g., DKA, lactic acidosis, uremia).";
     } else if (anionGap < 4) {
-      status = "Low";
-      variant = "warning";
+      status = "Low"; variant = "warning";
       interpretationText = "May indicate hypoalbuminemia, hypercalcemia, or lab error.";
     }
     return { value: anionGap.toFixed(1), status, variant, interpretation: interpretationText };
   }, [values.na, values.cl, values.hco3]);
 
   const oxygenationResult = useMemo(() => {
-    const pao2 = parseFloat(values.pao2);
+    const pao2Raw = parseFloat(values.pao2);
+    const paco2Raw = parseFloat(values.paco2);
     const fio2 = parseFloat(values.fio2);
-    const paco2 = parseFloat(values.paco2);
+    
+    const pao2 = pressureUnit === 'kPa' ? pao2Raw * KPA_TO_MMHG : pao2Raw;
+    const paco2 = pressureUnit === 'kPa' ? paco2Raw * KPA_TO_MMHG : paco2Raw;
+
     if (isNaN(pao2) || isNaN(fio2)) return null;
+    
     const ratio = pao2 / fio2;
     let level: "Normal" | "Mild" | "Moderate" | "Severe" = "Normal";
     let variant: "success" | "warning" | "destructive" = "success";
     if (ratio < 300 && ratio >= 200) { level = "Mild"; variant = "warning"; }
     else if (ratio < 200 && ratio >= 100) { level = "Moderate"; variant = "warning"; }
     else if (ratio < 100) { level = "Severe"; variant = "destructive"; }
+    
     let aaGradient = null;
     if (!isNaN(paco2)) {
         const PAO2 = (fio2 * (patm - 47)) - (paco2 / 0.8);
         aaGradient = (PAO2 - pao2).toFixed(1);
     }
     return {
-        ratio: ratio.toFixed(1),
-        level,
-        variant,
-        aaGradient,
+        ratio: ratio.toFixed(1), level, variant, aaGradient,
         interpretation: `PaO₂/FiO₂ ratio of ${ratio.toFixed(1)} indicates ${level.toLowerCase()} hypoxemia.`
     };
-  }, [values.pao2, values.fio2, values.paco2, patm]);
+  }, [values.pao2, values.fio2, values.paco2, patm, pressureUnit]);
 
   const handleCopy = () => {
-    let fullSummary = "";
-    if (interpretation) fullSummary += interpretation.summary;
-    if (oxygenationResult) fullSummary += ` ${oxygenationResult.interpretation}`;
-    if (anionGapResult) fullSummary += ` Anion Gap: ${anionGapResult.value} (${anionGapResult.status}). ${anionGapResult.interpretation}`;
-    if (oxygenationResult?.aaGradient) fullSummary += ` A-a Gradient: ${oxygenationResult.aaGradient} mmHg.`
+    let fullSummary = [
+      interpretation?.summary,
+      oxygenationResult?.interpretation,
+      anionGapResult ? `Anion Gap: ${anionGapResult.value} (${anionGapResult.status}). ${anionGapResult.interpretation}` : null,
+      oxygenationResult?.aaGradient ? `A-a Gradient: ${oxygenationResult.aaGradient} mmHg.` : null
+    ].filter(Boolean).join(' ');
     navigator.clipboard.writeText(fullSummary.trim());
     showSuccess("Result summary copied to clipboard!");
   };
 
   const handleDownloadTxt = () => {
     const reportLines = [
-        `ARTERIAL BLOOD GAS ANALYSIS REPORT`,
-        `====================================`,
-        `Hospital: ${patientDetails.hospital || 'N/A'}`,
-        `Report Generated: ${new Date().toLocaleString()}`,
-        ``,
-        `PATIENT DETAILS`,
-        `---------------`,
-        `Name: ${patientDetails.name || 'N/A'}`,
-        `Age:  ${patientDetails.age || 'N/A'}`,
-        `MRN:  ${patientDetails.mrn || 'N/A'}`,
-        ``,
-        `LABORATORY VALUES`,
-        `-----------------`,
+        `ARTERIAL BLOOD GAS ANALYSIS REPORT`, `====================================`,
+        `Hospital: ${patientDetails.hospital || 'N/A'}`, `Report Generated: ${new Date().toLocaleString()}`, ``,
+        `PATIENT DETAILS`, `---------------`,
+        `Name: ${patientDetails.name || 'N/A'}`, `Age:  ${patientDetails.age || 'N/A'}`, `MRN:  ${patientDetails.mrn || 'N/A'}`, ``,
+        `LABORATORY VALUES`, `-----------------`,
         `pH:             ${values.ph || 'N/A'} (Normal: 7.35-7.45)`,
-        `PaCO₂:          ${values.paco2 || 'N/A'} mmHg (Normal: 35-45)`,
+        `PaCO₂:          ${values.paco2 || 'N/A'} ${pressureUnit}`,
         `HCO₃⁻:          ${values.hco3 || 'N/A'} mEq/L (Normal: 22-26)`,
-        `PaO₂:           ${values.pao2 || 'N/A'} mmHg (Normal: 80-100)`,
+        `PaO₂:           ${values.pao2 || 'N/A'} ${pressureUnit}`,
         `FiO₂:           ${values.fio2 || 'N/A'}`,
         `Na⁺:            ${values.na || 'N/A'} mEq/L (Normal: 135-145)`,
-        `Cl⁻:            ${values.cl || 'N/A'} mEq/L (Normal: 96-106)`,
-        ``,
-        `CALCULATIONS`,
-        `------------`,
+        `Cl⁻:            ${values.cl || 'N/A'} mEq/L (Normal: 96-106)`, ``,
+        `CALCULATIONS`, `------------`,
         `Anion Gap:      ${anionGapResult?.value || 'N/A'} mEq/L`,
         `P/F Ratio:      ${oxygenationResult?.ratio || 'N/A'}`,
-        `A-a Gradient:   ${oxygenationResult?.aaGradient || 'N/A'} mmHg`,
-        ``,
-        `INTERPRETATION`,
-        `--------------`,
+        `A-a Gradient:   ${oxygenationResult?.aaGradient || 'N/A'} mmHg`, ``,
+        `INTERPRETATION`, `--------------`,
     ];
-
-    const fullInterpretation = [
-        interpretation?.summary,
-        interpretation?.compensationAnalysis?.interpretation,
-        oxygenationResult?.interpretation,
-        anionGapResult?.interpretation,
-    ].filter(Boolean);
-
+    const fullInterpretation = [interpretation?.summary, interpretation?.compensationAnalysis?.interpretation, oxygenationResult?.interpretation, anionGapResult?.interpretation].filter(Boolean);
     if (fullInterpretation.length > 0) {
         fullInterpretation.forEach(line => reportLines.push(`- ${line}`));
     } else {
         reportLines.push('No interpretation available.');
     }
-
-    reportLines.push(
-        ``,
-        `DISCLAIMER`,
-        `----------`,
-        `This is an automated analysis and is not a substitute for clinical judgment. All results must be correlated with the patient's clinical condition by a qualified healthcare professional.`,
-        ``,
-        `Report generated by an application built by Muneeb.`
-    );
-
+    reportLines.push(``, `DISCLAIMER`, `----------`, `This is an automated analysis and is not a substitute for clinical judgment. All results must be correlated with the patient's clinical condition by a qualified healthcare professional.`, ``, `Report generated by an application built by Muneeb.`);
     const reportText = reportLines.join('\n');
-    
     const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -364,21 +307,25 @@ export const AbgAnalyzer = () => {
 
   const isRespiratoryDisorder = interpretation?.primaryDisorder.includes('Respiratory');
   const showResults = interpretation || oxygenationResult || anionGapResult;
+  const currentRanges = normalRanges[pressureUnit];
 
   return (
     <div className="w-full">
       <PatientDetailsForm details={patientDetails} onChange={handlePatientDetailsChange} />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        {/* Input Column */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="w-full bg-white dark:bg-gray-800 shadow-custom border rounded-xl">
             <CardHeader>
-              <CardTitle className="text-xl font-bold text-center text-gray-700 dark:text-gray-200">
-                Enter Lab Values
-              </CardTitle>
+              <CardTitle className="text-xl font-bold text-center text-gray-700 dark:text-gray-200">Enter Lab Values</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
+              <div className="flex justify-center">
+                <ToggleGroup type="single" value={pressureUnit} onValueChange={(value: PressureUnit) => { if (value) setPressureUnit(value); }} className="w-full grid grid-cols-2">
+                  <ToggleGroupItem value="mmHg">mmHg</ToggleGroupItem>
+                  <ToggleGroupItem value="kPa">kPa</ToggleGroupItem>
+                </ToggleGroup>
+              </div>
               <div className="space-y-4">
                 <SectionHeader icon={<Beaker className="h-5 w-5 text-blue-500" />} title="Acid-Base" />
                 <div>
@@ -386,8 +333,8 @@ export const AbgAnalyzer = () => {
                   <Input type="number" name="ph" id="ph" value={values.ph} onChange={handleInputChange} placeholder="e.g., 7.40" className={`transition-all ${getStatusColor(parseFloat(values.ph), 7.35, 7.45)}`} />
                 </div>
                 <div>
-                  <label htmlFor="paco2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">PaCO₂ (35-45 mmHg)</label>
-                  <Input type="number" name="paco2" id="paco2" value={values.paco2} onChange={handleInputChange} placeholder="e.g., 40" className={`transition-all ${getStatusColor(parseFloat(values.paco2), 35, 45)}`} />
+                  <label htmlFor="paco2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">PaCO₂ ({currentRanges.paco2.min}-{currentRanges.paco2.max} {pressureUnit})</label>
+                  <Input type="number" name="paco2" id="paco2" value={values.paco2} onChange={handleInputChange} placeholder={`e.g., ${pressureUnit === 'mmHg' ? '40' : '5.3'}`} className={`transition-all ${getStatusColor(parseFloat(values.paco2), currentRanges.paco2.min, currentRanges.paco2.max)}`} />
                 </div>
                 <div>
                   <label htmlFor="hco3" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">HCO₃⁻ (22-26 mEq/L)</label>
@@ -400,7 +347,7 @@ export const AbgAnalyzer = () => {
                             <ToggleGroupItem value="acute">Acute</ToggleGroupItem>
                             <ToggleGroupItem value="chronic">Chronic</ToggleGroupItem>
                         </ToggleGroup>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Select to calculate expected metabolic compensation.</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 italic">Select to calculate expected metabolic compensation.</p>
                     </div>
                 )}
               </div>
@@ -408,8 +355,8 @@ export const AbgAnalyzer = () => {
                 <div className="space-y-4">
                   <SectionHeader icon={<Wind className="h-5 w-5 text-green-500" />} title="Oxygenation" />
                   <div>
-                    <label htmlFor="pao2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">PaO₂ (80-100 mmHg)</label>
-                    <Input type="number" name="pao2" id="pao2" value={values.pao2} onChange={handleInputChange} placeholder="e.g., 95" className={`transition-all ${getStatusColor(parseFloat(values.pao2), 80, 100)}`} />
+                    <label htmlFor="pao2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">PaO₂ ({currentRanges.pao2.min}-{currentRanges.pao2.max} {pressureUnit})</label>
+                    <Input type="number" name="pao2" id="pao2" value={values.pao2} onChange={handleInputChange} placeholder={`e.g., ${pressureUnit === 'mmHg' ? '95' : '12.6'}`} className={`transition-all ${getStatusColor(parseFloat(values.pao2), currentRanges.pao2.min, currentRanges.pao2.max)}`} />
                   </div>
                   <div>
                     <label htmlFor="fio2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">FiO₂ (0.21-1.0)</label>
@@ -418,7 +365,7 @@ export const AbgAnalyzer = () => {
                   <div>
                       <div className="flex items-center justify-between mb-1"><label htmlFor="patm" className="text-sm font-medium text-gray-600 dark:text-gray-300">Barometric Pressure</label><span className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{patm} mmHg</span></div>
                       <Slider id="patm" value={[patm]} onValueChange={(val) => setPatm(val[0])} min={500} max={800} step={5} />
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Adjust for altitude.</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 italic">Adjust for altitude.</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -434,39 +381,30 @@ export const AbgAnalyzer = () => {
                 </div>
               </div>
               <div className="flex w-full items-center space-x-2 pt-4 border-t">
-                <Button onClick={handleReset} variant="outline" className="flex-1">Reset</Button>
+                <Button onClick={handleReset} variant="outline" className="flex-1"><RefreshCw className="mr-2 h-4 w-4" />Reset</Button>
                 <Button onClick={handleCopy} className="flex-1"><Copy className="mr-2 h-4 w-4" />Copy Summary</Button>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Results Column */}
         <div className="lg:col-span-1">
           <div className="sticky top-8 space-y-4">
             {showResults ? (
               <>
                 {interpretation && (
                   <Card className="animate-fade-in shadow-custom border rounded-xl">
-                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-blue-50 dark:bg-blue-900/30 rounded-t-xl">
-                      <ClipboardList className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                      <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">ABG Interpretation</h3>
-                    </CardHeader>
+                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-blue-50 dark:bg-blue-900/30 rounded-t-xl"><ClipboardList className="h-6 w-6 text-blue-600 dark:text-blue-400" /><h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">ABG Interpretation</h3></CardHeader>
                     <CardContent className="p-5 space-y-2">
                       <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Disorder:</span> {interpretation.primaryDisorder} {interpretation.acidBaseStatus}</p>
                       <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Compensation:</span> {interpretation.compensation}</p>
-                      <div className="pt-3 mt-3 border-t">
-                        <p className="font-semibold text-gray-800 dark:text-gray-200">{interpretation.summary}</p>
-                      </div>
+                      <div className="pt-3 mt-3 border-t"><p className="font-semibold text-gray-800 dark:text-gray-200">{interpretation.summary}</p></div>
                     </CardContent>
                   </Card>
                 )}
                 {interpretation?.compensationAnalysis && (
                     <Card className="animate-fade-in shadow-custom border rounded-xl">
-                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-purple-50 dark:bg-purple-900/30 rounded-t-xl">
-                        <GitCompareArrows className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                        <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">{interpretation.compensationAnalysis.title}</h3>
-                      </CardHeader>
+                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-purple-50 dark:bg-purple-900/30 rounded-t-xl"><GitCompareArrows className="h-6 w-6 text-purple-600 dark:text-purple-400" /><h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">{interpretation.compensationAnalysis.title}</h3></CardHeader>
                       <CardContent className="p-5 space-y-2">
                           <div className="flex justify-between text-sm"><span className="text-gray-600 dark:text-gray-400">Expected:</span><span className="font-mono">{interpretation.compensationAnalysis.expected}</span></div>
                           <div className="flex justify-between text-sm"><span className="text-gray-600 dark:text-gray-400">Actual:</span><span className="font-mono">{interpretation.compensationAnalysis.actual}</span></div>
@@ -476,10 +414,7 @@ export const AbgAnalyzer = () => {
                 )}
                 {oxygenationResult && (
                     <Card className="animate-fade-in shadow-custom border rounded-xl">
-                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-green-50 dark:bg-green-900/30 rounded-t-xl">
-                        <Gauge className="h-6 w-6 text-green-600 dark:text-green-400" />
-                        <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Oxygenation Status</h3>
-                      </CardHeader>
+                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-green-50 dark:bg-green-900/30 rounded-t-xl"><Gauge className="h-6 w-6 text-green-600 dark:text-green-400" /><h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Oxygenation Status</h3></CardHeader>
                       <CardContent className="p-5 space-y-3">
                           <div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">P/F Ratio:</p><p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{oxygenationResult.ratio}</p></div>
                           <div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">Level:</p><Badge variant={oxygenationResult.variant}>{oxygenationResult.level}</Badge></div>
@@ -489,10 +424,7 @@ export const AbgAnalyzer = () => {
                 )}
                 {anionGapResult && (
                   <Card className="animate-fade-in shadow-custom border rounded-xl">
-                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-indigo-50 dark:bg-indigo-900/30 rounded-t-xl">
-                      <Calculator className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-                      <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Anion Gap</h3>
-                    </CardHeader>
+                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-indigo-50 dark:bg-indigo-900/30 rounded-t-xl"><Calculator className="h-6 w-6 text-indigo-600 dark:text-indigo-400" /><h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Anion Gap</h3></CardHeader>
                     <CardContent className="p-5 space-y-3">
                       <div className="flex items-center justify-between"><p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{anionGapResult.value} <span className="text-sm font-normal">mEq/L</span></p><Badge variant={anionGapResult.variant}>{anionGapResult.status}</Badge></div>
                       <p className="text-sm text-gray-700 dark:text-gray-300">{anionGapResult.interpretation}</p>
@@ -501,9 +433,7 @@ export const AbgAnalyzer = () => {
                 )}
               </>
             ) : (
-              <div className="flex items-center justify-center h-full bg-white dark:bg-gray-800/50 rounded-xl border shadow-custom min-h-[300px]">
-                <p className="text-gray-500 dark:text-gray-400">Enter values to see results</p>
-              </div>
+              <div className="flex items-center justify-center h-full bg-white dark:bg-gray-800/50 rounded-xl border shadow-custom min-h-[300px]"><p className="text-gray-500 dark:text-gray-400">Enter values to see results</p></div>
             )}
           </div>
         </div>
@@ -511,23 +441,10 @@ export const AbgAnalyzer = () => {
 
       {showResults && (
         <div className="mt-8">
-          <AbgReport
-            ref={reportRef}
-            patientDetails={patientDetails}
-            abgValues={values}
-            interpretation={interpretation}
-            oxygenationResult={oxygenationResult}
-            anionGapResult={anionGapResult}
-          />
+          <AbgReport ref={reportRef} patientDetails={patientDetails} abgValues={values} interpretation={interpretation} oxygenationResult={oxygenationResult} anionGapResult={anionGapResult} pressureUnit={pressureUnit} />
           <div className="flex justify-center mt-4 space-x-2">
-            <Button onClick={handleDownload}>
-              <Download className="mr-2 h-4 w-4" />
-              Download as PNG
-            </Button>
-            <Button onClick={handleDownloadTxt} variant="outline">
-              <FileText className="mr-2 h-4 w-4" />
-              Download as TXT
-            </Button>
+            <Button onClick={handleDownload}><Download className="mr-2 h-4 w-4" />Download as PNG</Button>
+            <Button onClick={handleDownloadTxt} variant="outline"><FileText className="mr-2 h-4 w-4" />Download as TXT</Button>
           </div>
         </div>
       )}

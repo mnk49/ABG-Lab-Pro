@@ -5,20 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Hospital } from 'lucide-react';
 
 interface PatientDetails {
-  name: string;
-  age: string;
-  mrn: string;
-  hospital: string;
+  name: string; age: string; mrn: string; hospital: string;
 }
 
 interface AbgValues {
-  ph: string;
-  paco2: string;
-  hco3: string;
-  pao2: string;
-  fio2: string;
-  na: string;
-  cl: string;
+  ph: string; paco2: string; hco3: string; pao2: string;
+  fio2: string; na: string; cl: string;
 }
 
 interface AbgReportProps {
@@ -27,15 +19,19 @@ interface AbgReportProps {
   interpretation: any;
   oxygenationResult: any;
   anionGapResult: any;
+  pressureUnit: 'mmHg' | 'kPa';
 }
+
+const normalRanges = {
+  mmHg: { paco2: "35-45", pao2: "80-100" },
+  kPa: { paco2: "4.7-6.0", pao2: "10.7-13.3" }
+};
 
 const ReportRow = ({ label, value, unit, range }: { label: string; value: string; unit?: string; range?: string }) => (
   <div className="flex justify-between items-baseline py-2 border-b border-gray-100 dark:border-gray-800">
     <div className="flex items-center">
       <p className="text-sm font-medium text-gray-600 dark:text-gray-400 w-28">{label}</p>
-      <p className="font-mono font-bold text-base text-gray-800 dark:text-gray-200">
-        {value || 'N/A'}
-      </p>
+      <p className="font-mono font-bold text-base text-gray-800 dark:text-gray-200">{value || 'N/A'}</p>
       {unit && <p className="ml-1 text-xs text-gray-500">{unit}</p>}
     </div>
     {range && <p className="font-mono text-xs text-gray-500 dark:text-gray-400">{range}</p>}
@@ -49,11 +45,7 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 );
 
 const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
-  patientDetails,
-  abgValues,
-  interpretation,
-  oxygenationResult,
-  anionGapResult
+  patientDetails, abgValues, interpretation, oxygenationResult, anionGapResult, pressureUnit
 }, ref) => {
 
   const fullInterpretation = [
@@ -63,19 +55,17 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
     anionGapResult?.interpretation,
   ].filter(Boolean);
 
+  const currentRanges = normalRanges[pressureUnit];
+
   return (
     <div ref={ref} className="bg-white dark:bg-gray-900 p-8 rounded-xl shadow-custom border font-sans">
       <Card className="w-full border-0 shadow-none bg-transparent">
         <CardHeader className="text-center p-4 border-b-4 border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-center space-x-3">
             <Hospital className="h-10 w-10 text-blue-600 dark:text-blue-400" />
-            <CardTitle className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">
-              {patientDetails.hospital || 'Clinical Report'}
-            </CardTitle>
+            <CardTitle className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">{patientDetails.hospital || 'Clinical Report'}</CardTitle>
           </div>
-          <p className="text-md font-semibold text-blue-600 dark:text-blue-400 mt-2 tracking-wider">
-            ARTERIAL BLOOD GAS ANALYSIS
-          </p>
+          <p className="text-md font-semibold text-blue-600 dark:text-blue-400 mt-2 tracking-wider">ARTERIAL BLOOD GAS ANALYSIS</p>
         </CardHeader>
         
         <CardContent className="p-4 md:p-6">
@@ -93,9 +83,9 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
             <div>
               <SectionTitle>Primary Values</SectionTitle>
               <ReportRow label="pH" value={abgValues.ph} range="(7.35-7.45)" />
-              <ReportRow label="PaCO₂" value={abgValues.paco2} unit="mmHg" range="(35-45)" />
+              <ReportRow label="PaCO₂" value={abgValues.paco2} unit={pressureUnit} range={`(${currentRanges.paco2})`} />
               <ReportRow label="HCO₃⁻" value={abgValues.hco3} unit="mEq/L" range="(22-26)" />
-              <ReportRow label="PaO₂" value={abgValues.pao2} unit="mmHg" range="(80-100)" />
+              <ReportRow label="PaO₂" value={abgValues.pao2} unit={pressureUnit} range={`(${currentRanges.pao2})`} />
             </div>
             <div>
               <SectionTitle>Calculations & Electrolytes</SectionTitle>
@@ -118,14 +108,13 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
               ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 mt-2">No interpretation available.</p>
+            <p className="text-sm text-gray-500 mt-2 italic">No interpretation available.</p>
           )}
-
         </CardContent>
 
         <CardFooter className="p-4 mt-6 border-t-2 border-gray-200 dark:border-gray-700 text-center">
           <div className="w-full">
-            <p className="text-xs text-gray-500 dark:text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-500 italic">
               This is an automated analysis and is not a substitute for clinical judgment. All results must be correlated with the patient's clinical condition by a qualified healthcare professional.
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">

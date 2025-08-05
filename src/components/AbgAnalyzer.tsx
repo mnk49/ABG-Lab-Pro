@@ -244,7 +244,7 @@ export const AbgAnalyzer = () => {
     if (isNaN(na) || isNaN(cl) || isNaN(hco3)) return null;
     const anionGap = na - (cl + hco3);
     let status: "Normal" | "Elevated" | "Low" = "Normal";
-    let variant: "default" | "destructive" | "secondary" = "default";
+    let variant: "success" | "destructive" | "warning" = "success";
     let interpretationText = "Normal anion gap.";
     if (anionGap > 12) {
       status = "Elevated";
@@ -252,7 +252,7 @@ export const AbgAnalyzer = () => {
       interpretationText = "Suggests high anion gap metabolic acidosis (e.g., DKA, lactic acidosis, uremia).";
     } else if (anionGap < 4) {
       status = "Low";
-      variant = "secondary";
+      variant = "warning";
       interpretationText = "May indicate hypoalbuminemia, hypercalcemia, or lab error.";
     }
     return { value: anionGap.toFixed(1), status, variant, interpretation: interpretationText };
@@ -265,9 +265,9 @@ export const AbgAnalyzer = () => {
     if (isNaN(pao2) || isNaN(fio2)) return null;
     const ratio = pao2 / fio2;
     let level: "Normal" | "Mild" | "Moderate" | "Severe" = "Normal";
-    let variant: "default" | "secondary" | "destructive" = "default";
-    if (ratio < 300 && ratio >= 200) { level = "Mild"; variant = "secondary"; }
-    else if (ratio < 200 && ratio >= 100) { level = "Moderate"; variant = "secondary"; }
+    let variant: "success" | "warning" | "destructive" = "success";
+    if (ratio < 300 && ratio >= 200) { level = "Mild"; variant = "warning"; }
+    else if (ratio < 200 && ratio >= 100) { level = "Moderate"; variant = "warning"; }
     else if (ratio < 100) { level = "Severe"; variant = "destructive"; }
     let aaGradient = null;
     if (!isNaN(paco2)) {
@@ -376,8 +376,8 @@ export const AbgAnalyzer = () => {
             {showResults ? (
               <>
                 {interpretation && (
-                  <Card className="animate-fade-in shadow-custom border">
-                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5">
+                  <Card className="animate-fade-in shadow-custom border rounded-xl">
+                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-blue-50 dark:bg-blue-900/30 rounded-t-xl">
                       <ClipboardList className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">ABG Interpretation</h3>
                     </CardHeader>
@@ -391,8 +391,8 @@ export const AbgAnalyzer = () => {
                   </Card>
                 )}
                 {interpretation?.compensationAnalysis && (
-                    <Card className="animate-fade-in shadow-custom border">
-                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5">
+                    <Card className="animate-fade-in shadow-custom border rounded-xl">
+                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-purple-50 dark:bg-purple-900/30 rounded-t-xl">
                         <GitCompareArrows className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                         <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">{interpretation.compensationAnalysis.title}</h3>
                       </CardHeader>
@@ -404,8 +404,8 @@ export const AbgAnalyzer = () => {
                     </Card>
                 )}
                 {oxygenationResult && (
-                    <Card className="animate-fade-in shadow-custom border">
-                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5">
+                    <Card className="animate-fade-in shadow-custom border rounded-xl">
+                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-green-50 dark:bg-green-900/30 rounded-t-xl">
                         <Gauge className="h-6 w-6 text-green-600 dark:text-green-400" />
                         <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Oxygenation Status</h3>
                       </CardHeader>
@@ -417,8 +417,8 @@ export const AbgAnalyzer = () => {
                     </Card>
                 )}
                 {anionGapResult && (
-                  <Card className="animate-fade-in shadow-custom border">
-                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5">
+                  <Card className="animate-fade-in shadow-custom border rounded-xl">
+                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5 bg-indigo-50 dark:bg-indigo-900/30 rounded-t-xl">
                       <Calculator className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                       <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Anion Gap</h3>
                     </CardHeader>

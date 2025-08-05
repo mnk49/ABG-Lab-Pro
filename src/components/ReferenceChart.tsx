@@ -10,18 +10,18 @@ const referenceValues = [
 
 export const ReferenceChart = () => {
   return (
-    <Card className="w-full bg-white shadow-lg rounded-xl">
+    <Card className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl">
       <CardHeader>
-        <CardTitle className="text-xl font-bold text-center text-gray-700">
+        <CardTitle className="text-xl font-bold text-center text-gray-700 dark:text-gray-200">
           Reference Ranges
         </CardTitle>
       </CardHeader>
       <CardContent>
         <ul className="space-y-3">
           {referenceValues.map((item) => (
-            <li key={item.name} className="flex justify-between items-center text-gray-600">
+            <li key={item.name} className="flex justify-between items-center text-gray-600 dark:text-gray-300">
               <span className="font-medium">{item.name}</span>
-              <span className="font-mono bg-gray-100 px-2 py-1 rounded-md text-sm">{item.value}</span>
+              <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md text-sm">{item.value}</span>
             </li>
           ))}
         </ul>

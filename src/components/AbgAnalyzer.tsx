@@ -25,7 +25,7 @@ type Interpretation = {
 };
 
 const getStatusColor = (value: number, normalMin: number, normalMax: number) => {
-  if (isNaN(value)) return "border-gray-300";
+  if (isNaN(value)) return "border-gray-300 dark:border-gray-600";
   if (value < normalMin || value > normalMax) return "border-red-500";
   return "border-green-500";
 };
@@ -126,9 +126,9 @@ export const AbgAnalyzer = () => {
   };
 
   return (
-    <Card className="w-full bg-white shadow-lg rounded-xl">
+    <Card className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center text-gray-700">
+        <CardTitle className="text-2xl font-bold text-center text-gray-700 dark:text-gray-200">
           ABG Analyzer
         </CardTitle>
       </CardHeader>
@@ -137,7 +137,7 @@ export const AbgAnalyzer = () => {
           <div className="space-y-4">
             <div>
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="ph" className="text-sm font-medium text-gray-600">pH (7.35-7.45)</label>
+                <label htmlFor="ph" className="text-sm font-medium text-gray-600 dark:text-gray-300">pH (7.35-7.45)</label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
@@ -151,7 +151,7 @@ export const AbgAnalyzer = () => {
             </div>
             <div>
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="paco2" className="text-sm font-medium text-gray-600">PaCO₂ (35-45 mmHg)</label>
+                <label htmlFor="paco2" className="text-sm font-medium text-gray-600 dark:text-gray-300">PaCO₂ (35-45 mmHg)</label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
@@ -165,7 +165,7 @@ export const AbgAnalyzer = () => {
             </div>
             <div>
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="hco3" className="text-sm font-medium text-gray-600">HCO₃⁻ (22-26 mEq/L)</label>
+                <label htmlFor="hco3" className="text-sm font-medium text-gray-600 dark:text-gray-300">HCO₃⁻ (22-26 mEq/L)</label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
@@ -179,7 +179,7 @@ export const AbgAnalyzer = () => {
             </div>
             <div>
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="pao2" className="text-sm font-medium text-gray-600">PaO₂ (80-100 mmHg)</label>
+                <label htmlFor="pao2" className="text-sm font-medium text-gray-600 dark:text-gray-300">PaO₂ (80-100 mmHg)</label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
@@ -193,7 +193,7 @@ export const AbgAnalyzer = () => {
             </div>
             <div>
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="sao2" className="text-sm font-medium text-gray-600">SaO₂ (95-100%)</label>
+                <label htmlFor="sao2" className="text-sm font-medium text-gray-600 dark:text-gray-300">SaO₂ (95-100%)</label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
@@ -208,14 +208,14 @@ export const AbgAnalyzer = () => {
           </div>
           <div className="flex flex-col justify-between">
             {interpretation && (
-              <div className="bg-blue-50 p-4 rounded-lg space-y-3 animate-fade-in">
-                <h3 className="font-semibold text-lg text-gray-800">Interpretation</h3>
-                <p><span className="font-medium">Acid-Base:</span> {interpretation.acidBaseStatus}</p>
-                <p><span className="font-medium">Disorder:</span> {interpretation.primaryDisorder}</p>
-                <p><span className="font-medium">Compensation:</span> {interpretation.compensation}</p>
-                <p><span className="font-medium">Oxygenation:</span> {interpretation.oxygenation}</p>
-                <div className="pt-2 mt-2 border-t">
-                  <p className="font-bold text-blue-800">{interpretation.summary}</p>
+              <div className="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-lg space-y-3 animate-fade-in">
+                <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Interpretation</h3>
+                <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Acid-Base:</span> {interpretation.acidBaseStatus}</p>
+                <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Disorder:</span> {interpretation.primaryDisorder}</p>
+                <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Compensation:</span> {interpretation.compensation}</p>
+                <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Oxygenation:</span> {interpretation.oxygenation}</p>
+                <div className="pt-2 mt-2 border-t border-blue-200 dark:border-blue-800">
+                  <p className="font-bold text-blue-800 dark:text-blue-300">{interpretation.summary}</p>
                 </div>
               </div>
             )}

@@ -304,7 +304,7 @@ export const AbgAnalyzer = () => {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         {/* Input Column */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl">
+          <Card className="w-full bg-white dark:bg-gray-800 shadow-custom border rounded-xl">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-center text-gray-700 dark:text-gray-200">
                 Enter Lab Values
@@ -377,61 +377,61 @@ export const AbgAnalyzer = () => {
             {showResults ? (
               <>
                 {interpretation && (
-                  <Card className="animate-fade-in shadow-md">
-                    <CardHeader className="flex flex-row items-center space-x-2 bg-blue-50 dark:bg-blue-900/50 rounded-t-lg py-3 px-4">
-                      <ClipboardList className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                  <Card className="animate-fade-in shadow-custom border">
+                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5">
+                      <ClipboardList className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                       <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">ABG Interpretation</h3>
                     </CardHeader>
-                    <CardContent className="p-4 space-y-2">
+                    <CardContent className="p-5 space-y-2">
                       <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Disorder:</span> {interpretation.primaryDisorder} {interpretation.acidBaseStatus}</p>
                       <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Compensation:</span> {interpretation.compensation}</p>
-                      <div className="pt-2 mt-2 border-t border-blue-200 dark:border-blue-800">
-                        <p className="font-bold text-blue-800 dark:text-blue-300">{interpretation.summary}</p>
+                      <div className="pt-3 mt-3 border-t">
+                        <p className="font-semibold text-gray-800 dark:text-gray-200">{interpretation.summary}</p>
                       </div>
                     </CardContent>
                   </Card>
                 )}
                 {interpretation?.compensationAnalysis && (
-                    <Card className="animate-fade-in shadow-md">
-                      <CardHeader className="flex flex-row items-center space-x-2 bg-purple-50 dark:bg-purple-900/50 rounded-t-lg py-3 px-4">
-                        <GitCompareArrows className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    <Card className="animate-fade-in shadow-custom border">
+                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5">
+                        <GitCompareArrows className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                         <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">{interpretation.compensationAnalysis.title}</h3>
                       </CardHeader>
-                      <CardContent className="p-4 space-y-1">
+                      <CardContent className="p-5 space-y-2">
                           <div className="flex justify-between text-sm"><span className="text-gray-600 dark:text-gray-400">Expected:</span><span className="font-mono">{interpretation.compensationAnalysis.expected}</span></div>
                           <div className="flex justify-between text-sm"><span className="text-gray-600 dark:text-gray-400">Actual:</span><span className="font-mono">{interpretation.compensationAnalysis.actual}</span></div>
-                          <p className="text-sm pt-2 mt-2 border-t border-purple-200 dark:border-purple-800 text-purple-800 dark:text-purple-300">{interpretation.compensationAnalysis.interpretation}</p>
+                          <p className="text-sm pt-3 mt-3 border-t text-gray-800 dark:text-gray-200 font-semibold">{interpretation.compensationAnalysis.interpretation}</p>
                       </CardContent>
                     </Card>
                 )}
                 {oxygenationResult && (
-                    <Card className="animate-fade-in shadow-md">
-                      <CardHeader className="flex flex-row items-center space-x-2 bg-green-50 dark:bg-green-900/50 rounded-t-lg py-3 px-4">
-                        <Gauge className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <Card className="animate-fade-in shadow-custom border">
+                      <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5">
+                        <Gauge className="h-6 w-6 text-green-600 dark:text-green-400" />
                         <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Oxygenation Status</h3>
                       </CardHeader>
-                      <CardContent className="p-4 space-y-2">
-                          <div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">P/F Ratio:</p><p className="text-2xl font-bold text-green-800 dark:text-green-300">{oxygenationResult.ratio}</p></div>
+                      <CardContent className="p-5 space-y-3">
+                          <div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">P/F Ratio:</p><p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{oxygenationResult.ratio}</p></div>
                           <div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">Level:</p><Badge variant={oxygenationResult.variant}>{oxygenationResult.level}</Badge></div>
-                          {oxygenationResult.aaGradient && (<div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">A-a Gradient:</p><p className="font-mono text-green-800 dark:text-green-300">{oxygenationResult.aaGradient} mmHg</p></div>)}
+                          {oxygenationResult.aaGradient && (<div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">A-a Gradient:</p><p className="font-mono text-gray-800 dark:text-gray-200">{oxygenationResult.aaGradient} mmHg</p></div>)}
                       </CardContent>
                     </Card>
                 )}
                 {anionGapResult && (
-                  <Card className="animate-fade-in shadow-md">
-                    <CardHeader className="flex flex-row items-center space-x-2 bg-indigo-50 dark:bg-indigo-900/50 rounded-t-lg py-3 px-4">
-                      <Calculator className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                  <Card className="animate-fade-in shadow-custom border">
+                    <CardHeader className="flex flex-row items-center space-x-3 py-4 px-5">
+                      <Calculator className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                       <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Anion Gap</h3>
                     </CardHeader>
-                    <CardContent className="p-4 space-y-2">
-                      <div className="flex items-center justify-between"><p className="text-2xl font-bold text-indigo-800 dark:text-indigo-300">{anionGapResult.value} <span className="text-sm font-normal">mEq/L</span></p><Badge variant={anionGapResult.variant}>{anionGapResult.status}</Badge></div>
+                    <CardContent className="p-5 space-y-3">
+                      <div className="flex items-center justify-between"><p className="text-2xl font-bold text-gray-800 dark:text-gray-200">{anionGapResult.value} <span className="text-sm font-normal">mEq/L</span></p><Badge variant={anionGapResult.variant}>{anionGapResult.status}</Badge></div>
                       <p className="text-sm text-gray-700 dark:text-gray-300">{anionGapResult.interpretation}</p>
                     </CardContent>
                   </Card>
                 )}
               </>
             ) : (
-              <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-800/50 rounded-lg min-h-[300px]">
+              <div className="flex items-center justify-center h-full bg-white dark:bg-gray-800/50 rounded-xl border shadow-custom min-h-[300px]">
                 <p className="text-gray-500 dark:text-gray-400">Enter values to see results</p>
               </div>
             )}

@@ -19,7 +19,7 @@ interface PatientDetailsFormProps {
 
 export const PatientDetailsForm: React.FC<PatientDetailsFormProps> = ({ details, onChange }) => {
   return (
-    <Card className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl mb-8">
+    <Card className="w-full bg-white dark:bg-gray-800 shadow-custom border rounded-xl mb-8">
       <CardHeader>
         <CardTitle className="text-xl font-bold text-center text-gray-700 dark:text-gray-200">
           Patient Details (Optional)

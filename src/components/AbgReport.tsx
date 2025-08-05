@@ -64,7 +64,7 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
   ].filter(Boolean);
 
   return (
-    <div ref={ref} className="bg-white dark:bg-gray-950 p-4 rounded-xl shadow-lg">
+    <div ref={ref} className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-custom border">
       <Card className="w-full border-0 shadow-none bg-transparent">
         <CardHeader className="text-center p-4">
           <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">ARTERIAL BLOOD GAS ANALYSIS</p>

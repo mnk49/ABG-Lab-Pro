@@ -18,6 +18,9 @@ export default {
       },
     },
     extend: {
+      boxShadow: {
+        'custom': '0 4px 24px -4px rgba(0, 0, 0, 0.08)',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

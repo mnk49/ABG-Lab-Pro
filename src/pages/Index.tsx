@@ -5,10 +5,10 @@ import { Footer } from "@/components/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col">
-      <div className="absolute top-4 right-4">
+      <div className="absolute top-6 right-6">
         <ThemeToggle />
       </div>
-      <main className="flex-grow w-full max-w-6xl mx-auto px-4 py-8">
+      <main className="flex-grow w-full max-w-6xl mx-auto px-4 py-12">
         <AbgAnalyzer />
       </main>
       <Footer />

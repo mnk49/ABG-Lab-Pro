@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Hospital } from 'lucide-react';
 
 interface PatientDetails {
   name: string;
@@ -30,9 +30,9 @@ interface AbgReportProps {
 }
 
 const ReportRow = ({ label, value, unit, range }: { label: string; value: string; unit?: string; range?: string }) => (
-  <div className="flex justify-between items-baseline py-2">
+  <div className="flex justify-between items-baseline py-2 border-b border-gray-100 dark:border-gray-800">
     <div className="flex items-center">
-      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 w-24">{label}</p>
+      <p className="text-sm font-medium text-gray-600 dark:text-gray-400 w-28">{label}</p>
       <p className="font-mono font-bold text-base text-gray-800 dark:text-gray-200">
         {value || 'N/A'}
       </p>
@@ -43,7 +43,7 @@ const ReportRow = ({ label, value, unit, range }: { label: string; value: string
 );
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-  <h4 className="text-md font-semibold text-gray-700 dark:text-gray-300 mt-4 mb-2 pb-1 border-b border-gray-200 dark:border-gray-700">
+  <h4 className="text-md font-semibold text-gray-700 dark:text-gray-300 mt-6 mb-2 pb-1 border-b-2 border-gray-200 dark:border-gray-700">
     {children}
   </h4>
 );
@@ -64,26 +64,32 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
   ].filter(Boolean);
 
   return (
-    <div ref={ref} className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-custom border">
+    <div ref={ref} className="bg-white dark:bg-gray-900 p-8 rounded-xl shadow-custom border font-sans">
       <Card className="w-full border-0 shadow-none bg-transparent">
-        <CardHeader className="text-center p-4">
-          <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">ARTERIAL BLOOD GAS ANALYSIS</p>
-          <CardTitle className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-            {patientDetails.hospital || 'Clinical Report'}
-          </CardTitle>
+        <CardHeader className="text-center p-4 border-b-4 border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-center space-x-3">
+            <Hospital className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+            <CardTitle className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">
+              {patientDetails.hospital || 'Clinical Report'}
+            </CardTitle>
+          </div>
+          <p className="text-md font-semibold text-blue-600 dark:text-blue-400 mt-2 tracking-wider">
+            ARTERIAL BLOOD GAS ANALYSIS
+          </p>
         </CardHeader>
         
-        <Separator />
-
         <CardContent className="p-4 md:p-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm mb-6">
-            <div className="font-medium text-gray-500">Patient: <span className="font-bold text-gray-800 dark:text-gray-200">{patientDetails.name || 'N/A'}</span></div>
-            <div className="font-medium text-gray-500">Age: <span className="font-bold text-gray-800 dark:text-gray-200">{patientDetails.age || 'N/A'}</span></div>
-            <div className="font-medium text-gray-500">MRN: <span className="font-bold text-gray-800 dark:text-gray-200">{patientDetails.mrn || 'N/A'}</span></div>
-            <div className="font-medium text-gray-500">Date: <span className="font-bold text-gray-800 dark:text-gray-200">{new Date().toLocaleDateString()}</span></div>
+          <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50 my-6">
+            <h3 className="text-lg font-semibold mb-3 text-gray-700 dark:text-gray-300">Patient Information</h3>
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+              <div><span className="font-medium text-gray-500">Patient Name:</span> <span className="font-semibold text-gray-800 dark:text-gray-200">{patientDetails.name || 'N/A'}</span></div>
+              <div><span className="font-medium text-gray-500">Age:</span> <span className="font-semibold text-gray-800 dark:text-gray-200">{patientDetails.age || 'N/A'}</span></div>
+              <div><span className="font-medium text-gray-500">MRN:</span> <span className="font-semibold text-gray-800 dark:text-gray-200">{patientDetails.mrn || 'N/A'}</span></div>
+              <div><span className="font-medium text-gray-500">Report Date:</span> <span className="font-semibold text-gray-800 dark:text-gray-200">{new Date().toLocaleString()}</span></div>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12">
             <div>
               <SectionTitle>Primary Values</SectionTitle>
               <ReportRow label="pH" value={abgValues.ph} range="(7.35-7.45)" />
@@ -101,12 +107,13 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
             </div>
           </div>
 
-          <SectionTitle>Interpretation</SectionTitle>
+          <SectionTitle>Interpretation Summary</SectionTitle>
           {fullInterpretation.length > 0 ? (
-            <div className="mt-2 space-y-2 bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg">
+            <div className="mt-4 space-y-3 bg-blue-50 dark:bg-blue-900/30 p-5 rounded-lg border border-blue-200 dark:border-blue-800">
               {fullInterpretation.map((line, index) => (
-                <p key={index} className="text-sm text-gray-800 dark:text-gray-200">
-                  <span className="font-semibold text-blue-700 dark:text-blue-400 mr-2">&bull;</span>{line}
+                <p key={index} className="text-base text-gray-800 dark:text-gray-200 flex items-start">
+                  <span className="font-bold text-blue-700 dark:text-blue-400 mr-3 mt-1">&#8227;</span>
+                  <span>{line}</span>
                 </p>
               ))}
             </div>
@@ -116,9 +123,9 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
 
         </CardContent>
 
-        <CardFooter className="p-4 mt-4 text-center">
-          <p className="text-xs text-gray-400 dark:text-gray-500 w-full">
-            This is an automated analysis. All results should be clinically correlated by a qualified healthcare professional.
+        <CardFooter className="p-4 mt-6 border-t-2 border-gray-200 dark:border-gray-700 text-center">
+          <p className="text-xs text-gray-500 dark:text-gray-500 w-full">
+            This is an automated analysis and is not a substitute for clinical judgment. All results must be correlated with the patient's clinical condition by a qualified healthcare professional.
           </p>
         </CardFooter>
       </Card>

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator } from "lucide-react";
+import { FileText, Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import html2canvas from 'html2canvas';
 import { PatientDetailsForm } from './PatientDetailsForm';
@@ -293,6 +293,73 @@ export const AbgAnalyzer = () => {
     showSuccess("Result summary copied to clipboard!");
   };
 
+  const handleDownloadTxt = () => {
+    const reportLines = [
+        `ARTERIAL BLOOD GAS ANALYSIS REPORT`,
+        `====================================`,
+        `Hospital: ${patientDetails.hospital || 'N/A'}`,
+        `Report Generated: ${new Date().toLocaleString()}`,
+        ``,
+        `PATIENT DETAILS`,
+        `---------------`,
+        `Name: ${patientDetails.name || 'N/A'}`,
+        `Age:  ${patientDetails.age || 'N/A'}`,
+        `MRN:  ${patientDetails.mrn || 'N/A'}`,
+        ``,
+        `LABORATORY VALUES`,
+        `-----------------`,
+        `pH:             ${values.ph || 'N/A'} (Normal: 7.35-7.45)`,
+        `PaCO₂:          ${values.paco2 || 'N/A'} mmHg (Normal: 35-45)`,
+        `HCO₃⁻:          ${values.hco3 || 'N/A'} mEq/L (Normal: 22-26)`,
+        `PaO₂:           ${values.pao2 || 'N/A'} mmHg (Normal: 80-100)`,
+        `FiO₂:           ${values.fio2 || 'N/A'}`,
+        `Na⁺:            ${values.na || 'N/A'} mEq/L (Normal: 135-145)`,
+        `Cl⁻:            ${values.cl || 'N/A'} mEq/L (Normal: 96-106)`,
+        ``,
+        `CALCULATIONS`,
+        `------------`,
+        `Anion Gap:      ${anionGapResult?.value || 'N/A'} mEq/L`,
+        `P/F Ratio:      ${oxygenationResult?.ratio || 'N/A'}`,
+        `A-a Gradient:   ${oxygenationResult?.aaGradient || 'N/A'} mmHg`,
+        ``,
+        `INTERPRETATION`,
+        `--------------`,
+    ];
+
+    const fullInterpretation = [
+        interpretation?.summary,
+        interpretation?.compensationAnalysis?.interpretation,
+        oxygenationResult?.interpretation,
+        anionGapResult?.interpretation,
+    ].filter(Boolean);
+
+    if (fullInterpretation.length > 0) {
+        fullInterpretation.forEach(line => reportLines.push(`- ${line}`));
+    } else {
+        reportLines.push('No interpretation available.');
+    }
+
+    reportLines.push(
+        ``,
+        `DISCLAIMER`,
+        `----------`,
+        `This is an automated analysis and is not a substitute for clinical judgment. All results must be correlated with the patient's clinical condition by a qualified healthcare professional.`
+    );
+
+    const reportText = reportLines.join('\n');
+    
+    const blob = new Blob([reportText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.download = `abg-report-${patientDetails.mrn || 'patient'}-${Date.now()}.txt`;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    showSuccess("TXT report downloaded.");
+  };
+
   const isRespiratoryDisorder = interpretation?.primaryDisorder.includes('Respiratory');
   const showResults = interpretation || oxygenationResult || anionGapResult;
 
@@ -448,10 +515,14 @@ export const AbgAnalyzer = () => {
             oxygenationResult={oxygenationResult}
             anionGapResult={anionGapResult}
           />
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center mt-4 space-x-2">
             <Button onClick={handleDownload}>
               <Download className="mr-2 h-4 w-4" />
-              Download Report as PNG
+              Download as PNG
+            </Button>
+            <Button onClick={handleDownloadTxt} variant="outline">
+              <FileText className="mr-2 h-4 w-4" />
+              Download as TXT
             </Button>
           </div>
         </div>

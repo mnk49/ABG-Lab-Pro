@@ -4,11 +4,10 @@ import { useState, useMemo, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { HelpCircle, Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator } from "lucide-react";
+import { Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import html2canvas from 'html2canvas';
 import { PatientDetailsForm } from './PatientDetailsForm';
@@ -314,15 +313,15 @@ export const AbgAnalyzer = () => {
               <div className="space-y-4">
                 <SectionHeader icon={<Beaker className="h-5 w-5 text-blue-500" />} title="Acid-Base" />
                 <div>
-                  <div className="flex items-center space-x-2 mb-1"><label htmlFor="ph" className="text-sm font-medium text-gray-600 dark:text-gray-300">pH (7.35-7.45)</label><Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400" /></TooltipTrigger><TooltipContent><p>Blood acidity</p></TooltipContent></Tooltip></div>
+                  <label htmlFor="ph" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">pH (7.35-7.45)</label>
                   <Input type="number" name="ph" id="ph" value={values.ph} onChange={handleInputChange} placeholder="e.g., 7.40" className={`transition-all ${getStatusColor(parseFloat(values.ph), 7.35, 7.45)}`} />
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2 mb-1"><label htmlFor="paco2" className="text-sm font-medium text-gray-600 dark:text-gray-300">PaCO₂ (35-45 mmHg)</label><Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400" /></TooltipTrigger><TooltipContent><p>Respiratory component</p></TooltipContent></Tooltip></div>
+                  <label htmlFor="paco2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">PaCO₂ (35-45 mmHg)</label>
                   <Input type="number" name="paco2" id="paco2" value={values.paco2} onChange={handleInputChange} placeholder="e.g., 40" className={`transition-all ${getStatusColor(parseFloat(values.paco2), 35, 45)}`} />
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2 mb-1"><label htmlFor="hco3" className="text-sm font-medium text-gray-600 dark:text-gray-300">HCO₃⁻ (22-26 mEq/L)</label><Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400" /></TooltipTrigger><TooltipContent><p>Metabolic component</p></TooltipContent></Tooltip></div>
+                  <label htmlFor="hco3" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">HCO₃⁻ (22-26 mEq/L)</label>
                   <Input type="number" name="hco3" id="hco3" value={values.hco3} onChange={handleInputChange} placeholder="e.g., 24" className={`transition-all ${getStatusColor(parseFloat(values.hco3), 22, 26)}`} />
                 </div>
                 {isRespiratoryDisorder && (
@@ -339,11 +338,11 @@ export const AbgAnalyzer = () => {
               <div className="space-y-4">
                 <SectionHeader icon={<Wind className="h-5 w-5 text-green-500" />} title="Oxygenation" />
                 <div>
-                  <div className="flex items-center space-x-2 mb-1"><label htmlFor="pao2" className="text-sm font-medium text-gray-600 dark:text-gray-300">PaO₂ (80-100 mmHg)</label><Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400" /></TooltipTrigger><TooltipContent><p>Arterial oxygen pressure</p></TooltipContent></Tooltip></div>
+                  <label htmlFor="pao2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">PaO₂ (80-100 mmHg)</label>
                   <Input type="number" name="pao2" id="pao2" value={values.pao2} onChange={handleInputChange} placeholder="e.g., 95" className={`transition-all ${getStatusColor(parseFloat(values.pao2), 80, 100)}`} />
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2 mb-1"><label htmlFor="fio2" className="text-sm font-medium text-gray-600 dark:text-gray-300">FiO₂ (0.21-1.0)</label><Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400" /></TooltipTrigger><TooltipContent><p>Fraction of inspired oxygen (0.21 is room air)</p></TooltipContent></Tooltip></div>
+                  <label htmlFor="fio2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">FiO₂ (0.21-1.0)</label>
                   <Input type="number" name="fio2" id="fio2" value={values.fio2} onChange={handleInputChange} placeholder="e.g., 0.21" step="0.01" />
                 </div>
                 <div>
@@ -355,11 +354,11 @@ export const AbgAnalyzer = () => {
               <div className="space-y-4">
                 <SectionHeader icon={<FlaskConical className="h-5 w-5 text-purple-500" />} title="Electrolytes for Anion Gap" />
                 <div>
-                  <div className="flex items-center space-x-2 mb-1"><label htmlFor="na" className="text-sm font-medium text-gray-600 dark:text-gray-300">Na⁺ (135-145 mEq/L)</label></div>
+                  <label htmlFor="na" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Na⁺ (135-145 mEq/L)</label>
                   <Input type="number" name="na" id="na" value={values.na} onChange={handleInputChange} placeholder="e.g., 140" className={`transition-all ${getStatusColor(parseFloat(values.na), 135, 145)}`} />
                 </div>
                 <div>
-                  <div className="flex items-center space-x-2 mb-1"><label htmlFor="cl" className="text-sm font-medium text-gray-600 dark:text-gray-300">Cl⁻ (96-106 mEq/L)</label></div>
+                  <label htmlFor="cl" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Cl⁻ (96-106 mEq/L)</label>
                   <Input type="number" name="cl" id="cl" value={values.cl} onChange={handleInputChange} placeholder="e.g., 100" className={`transition-all ${getStatusColor(parseFloat(values.cl), 96, 106)}`} />
                 </div>
               </div>

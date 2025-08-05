@@ -88,6 +88,28 @@
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  .high-contrast {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 13%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 13%;
+    --muted-foreground: 0 0% 80%;
+    --accent: 0 0% 13%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 0%;
+    --border: 0 0% 40%;
+    --input: 0 0% 0%;
+    --ring: 60 91% 50%; /* Bright yellow for focus */
+  }
 }
 
 @layer base {
@@ -97,5 +119,15 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  body.dyslexia-friendly {
+    @apply tracking-wide word-spacing-2;
+  }
+}
+
+@layer utilities {
+  .word-spacing-2 {
+    word-spacing: 0.2em;
   }
 }

@@ -4,6 +4,8 @@ import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { HelpCircle } from "lucide-react";
 
 type AbgValues = {
   ph: string;
@@ -126,23 +128,73 @@ export const AbgAnalyzer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
             <div>
-              <label htmlFor="ph" className="block text-sm font-medium text-gray-600 mb-1">pH (7.35-7.45)</label>
+              <div className="flex items-center space-x-2 mb-1">
+                <label htmlFor="ph" className="text-sm font-medium text-gray-600">pH (7.35-7.45)</label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Measures the acidity or alkalinity of the blood.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input type="number" name="ph" id="ph" value={values.ph} onChange={handleInputChange} placeholder="e.g., 7.40" className={`transition-all ${getStatusColor(parseFloat(values.ph), 7.35, 7.45)}`} />
             </div>
             <div>
-              <label htmlFor="paco2" className="block text-sm font-medium text-gray-600 mb-1">PaCO₂ (35-45 mmHg)</label>
+              <div className="flex items-center space-x-2 mb-1">
+                <label htmlFor="paco2" className="text-sm font-medium text-gray-600">PaCO₂ (35-45 mmHg)</label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Partial pressure of carbon dioxide; indicates respiratory function.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input type="number" name="paco2" id="paco2" value={values.paco2} onChange={handleInputChange} placeholder="e.g., 40" className={`transition-all ${getStatusColor(parseFloat(values.paco2), 35, 45)}`} />
             </div>
             <div>
-              <label htmlFor="hco3" className="block text-sm font-medium text-gray-600 mb-1">HCO₃⁻ (22-26 mEq/L)</label>
+              <div className="flex items-center space-x-2 mb-1">
+                <label htmlFor="hco3" className="text-sm font-medium text-gray-600">HCO₃⁻ (22-26 mEq/L)</label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Bicarbonate level; indicates metabolic function.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input type="number" name="hco3" id="hco3" value={values.hco3} onChange={handleInputChange} placeholder="e.g., 24" className={`transition-all ${getStatusColor(parseFloat(values.hco3), 22, 26)}`} />
             </div>
             <div>
-              <label htmlFor="pao2" className="block text-sm font-medium text-gray-600 mb-1">PaO₂ (80-100 mmHg)</label>
+              <div className="flex items-center space-x-2 mb-1">
+                <label htmlFor="pao2" className="text-sm font-medium text-gray-600">PaO₂ (80-100 mmHg)</label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Partial pressure of oxygen; measures oxygen levels in the blood.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input type="number" name="pao2" id="pao2" value={values.pao2} onChange={handleInputChange} placeholder="e.g., 95" className={`transition-all ${getStatusColor(parseFloat(values.pao2), 80, 100)}`} />
             </div>
             <div>
-              <label htmlFor="sao2" className="block text-sm font-medium text-gray-600 mb-1">SaO₂ (95-100%)</label>
+              <div className="flex items-center space-x-2 mb-1">
+                <label htmlFor="sao2" className="text-sm font-medium text-gray-600">SaO₂ (95-100%)</label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Oxygen saturation; percentage of hemoglobin carrying oxygen.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input type="number" name="sao2" id="sao2" value={values.sao2} onChange={handleInputChange} placeholder="e.g., 98" className={`transition-all ${getStatusColor(parseFloat(values.sao2), 95, 100)}`} />
             </div>
           </div>

@@ -21,9 +21,6 @@ export default {
       boxShadow: {
         'custom': '0 4px 24px -4px rgba(0, 0, 0, 0.08)',
       },
-      wordSpacing: {
-        '2': '0.2em',
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
+import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { HelpCircle, Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator } from "lucide-react";
@@ -245,18 +245,18 @@ export const AbgAnalyzer = () => {
     if (isNaN(na) || isNaN(cl) || isNaN(hco3)) return null;
     const anionGap = na - (cl + hco3);
     let status: "Normal" | "Elevated" | "Low" = "Normal";
-    let color: "default" | "destructive" | "secondary" = "default";
+    let variant: "default" | "destructive" | "secondary" = "default";
     let interpretationText = "Normal anion gap.";
     if (anionGap > 12) {
       status = "Elevated";
-      color = "destructive";
+      variant = "destructive";
       interpretationText = "Suggests high anion gap metabolic acidosis (e.g., DKA, lactic acidosis, uremia).";
     } else if (anionGap < 4) {
       status = "Low";
-      color = "secondary";
+      variant = "secondary";
       interpretationText = "May indicate hypoalbuminemia, hypercalcemia, or lab error.";
     }
-    return { value: anionGap.toFixed(1), status, color, interpretation: interpretationText };
+    return { value: anionGap.toFixed(1), status, variant, interpretation: interpretationText };
   }, [values.na, values.cl, values.hco3]);
 
   const oxygenationResult = useMemo(() => {
@@ -266,10 +266,10 @@ export const AbgAnalyzer = () => {
     if (isNaN(pao2) || isNaN(fio2)) return null;
     const ratio = pao2 / fio2;
     let level: "Normal" | "Mild" | "Moderate" | "Severe" = "Normal";
-    let color: "default" | "yellow" | "orange" | "destructive" = "default";
-    if (ratio < 300 && ratio >= 200) { level = "Mild"; color = "yellow"; }
-    else if (ratio < 200 && ratio >= 100) { level = "Moderate"; color = "orange"; }
-    else if (ratio < 100) { level = "Severe"; color = "destructive"; }
+    let variant: "default" | "secondary" | "destructive" = "default";
+    if (ratio < 300 && ratio >= 200) { level = "Mild"; variant = "secondary"; }
+    else if (ratio < 200 && ratio >= 100) { level = "Moderate"; variant = "secondary"; }
+    else if (ratio < 100) { level = "Severe"; variant = "destructive"; }
     let aaGradient = null;
     if (!isNaN(paco2)) {
         const PAO2 = (fio2 * (patm - 47)) - (paco2 / 0.8);
@@ -278,7 +278,7 @@ export const AbgAnalyzer = () => {
     return {
         ratio: ratio.toFixed(1),
         level,
-        color,
+        variant,
         aaGradient,
         interpretation: `PaO₂/FiO₂ ratio of ${ratio.toFixed(1)} indicates ${level.toLowerCase()} hypoxemia.`
     };
@@ -412,7 +412,7 @@ export const AbgAnalyzer = () => {
                       </CardHeader>
                       <CardContent className="p-4 space-y-2">
                           <div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">P/F Ratio:</p><p className="text-2xl font-bold text-green-800 dark:text-green-300">{oxygenationResult.ratio}</p></div>
-                          <div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">Level:</p><Badge variant={oxygenationResult.color as any}>{oxygenationResult.level}</Badge></div>
+                          <div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">Level:</p><Badge variant={oxygenationResult.variant}>{oxygenationResult.level}</Badge></div>
                           {oxygenationResult.aaGradient && (<div className="flex items-center justify-between"><p className="text-gray-700 dark:text-gray-300">A-a Gradient:</p><p className="font-mono text-green-800 dark:text-green-300">{oxygenationResult.aaGradient} mmHg</p></div>)}
                       </CardContent>
                     </Card>
@@ -424,7 +424,7 @@ export const AbgAnalyzer = () => {
                       <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Anion Gap</h3>
                     </CardHeader>
                     <CardContent className="p-4 space-y-2">
-                      <div className="flex items-center justify-between"><p className="text-2xl font-bold text-indigo-800 dark:text-indigo-300">{anionGapResult.value} <span className="text-sm font-normal">mEq/L</span></p><Badge variant={anionGapResult.color}>{anionGapResult.status}</Badge></div>
+                      <div className="flex items-center justify-between"><p className="text-2xl font-bold text-indigo-800 dark:text-indigo-300">{anionGapResult.value} <span className="text-sm font-normal">mEq/L</span></p><Badge variant={anionGapResult.variant}>{anionGapResult.status}</Badge></div>
                       <p className="text-sm text-gray-700 dark:text-gray-300">{anionGapResult.interpretation}</p>
                     </CardContent>
                   </Card>

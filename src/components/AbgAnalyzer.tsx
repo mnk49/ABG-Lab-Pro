@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 import { HelpCircle, Copy } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 
@@ -14,6 +15,8 @@ type AbgValues = {
   hco3: string;
   pao2: string;
   sao2: string;
+  na: string;
+  cl: string;
 };
 
 type Interpretation = {
@@ -37,6 +40,8 @@ export const AbgAnalyzer = () => {
     hco3: "",
     pao2: "",
     sao2: "",
+    na: "",
+    cl: "",
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -45,7 +50,7 @@ export const AbgAnalyzer = () => {
   };
 
   const handleReset = () => {
-    setValues({ ph: "", paco2: "", hco3: "", pao2: "", sao2: "" });
+    setValues({ ph: "", paco2: "", hco3: "", pao2: "", sao2: "", na: "", cl: "" });
   };
 
   const interpretation: Interpretation | null = useMemo(() => {
@@ -118,9 +123,45 @@ export const AbgAnalyzer = () => {
     return { acidBaseStatus, primaryDisorder, compensation, oxygenation, summary };
   }, [values]);
 
+  const anionGapResult = useMemo(() => {
+    const na = parseFloat(values.na);
+    const cl = parseFloat(values.cl);
+    const hco3 = parseFloat(values.hco3);
+
+    if (isNaN(na) || isNaN(cl) || isNaN(hco3)) {
+      return null;
+    }
+
+    const anionGap = na - (cl + hco3);
+    let status: "Normal" | "Elevated" | "Low" = "Normal";
+    let color: "default" | "destructive" | "secondary" = "default";
+    let interpretationText = "Normal anion gap.";
+
+    if (anionGap > 12) {
+      status = "Elevated";
+      color = "destructive";
+      interpretationText = "Suggests high anion gap metabolic acidosis (e.g., DKA, lactic acidosis, uremia).";
+    } else if (anionGap < 4) {
+      status = "Low";
+      color = "secondary";
+      interpretationText = "May indicate hypoalbuminemia, hypercalcemia, or lab error.";
+    }
+
+    return {
+      value: anionGap.toFixed(1),
+      status,
+      color,
+      interpretation: interpretationText,
+    };
+  }, [values.na, values.cl, values.hco3]);
+
   const handleCopy = () => {
     if (interpretation?.summary) {
-      navigator.clipboard.writeText(interpretation.summary);
+      let fullSummary = interpretation.summary;
+      if (anionGapResult) {
+        fullSummary += ` Anion Gap: ${anionGapResult.value} (${anionGapResult.status}). ${anionGapResult.interpretation}`;
+      }
+      navigator.clipboard.writeText(fullSummary);
       showSuccess("Result summary copied to clipboard!");
     }
   };
@@ -129,101 +170,79 @@ export const AbgAnalyzer = () => {
     <Card className="w-full bg-white dark:bg-gray-800 shadow-lg rounded-xl">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center text-gray-700 dark:text-gray-200">
-          ABG Analyzer
+          ABG & Anion Gap Analyzer
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-4">
+            {/* ABG Inputs */}
             <div>
               <div className="flex items-center space-x-2 mb-1">
                 <label htmlFor="ph" className="text-sm font-medium text-gray-600 dark:text-gray-300">pH (7.35-7.45)</label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Measures the acidity or alkalinity of the blood.</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" /></TooltipTrigger><TooltipContent><p>Measures the acidity or alkalinity of the blood.</p></TooltipContent></Tooltip>
               </div>
               <Input type="number" name="ph" id="ph" value={values.ph} onChange={handleInputChange} placeholder="e.g., 7.40" className={`transition-all ${getStatusColor(parseFloat(values.ph), 7.35, 7.45)}`} />
             </div>
             <div>
               <div className="flex items-center space-x-2 mb-1">
                 <label htmlFor="paco2" className="text-sm font-medium text-gray-600 dark:text-gray-300">PaCO₂ (35-45 mmHg)</label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Partial pressure of carbon dioxide; indicates respiratory function.</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" /></TooltipTrigger><TooltipContent><p>Partial pressure of carbon dioxide; indicates respiratory function.</p></TooltipContent></Tooltip>
               </div>
               <Input type="number" name="paco2" id="paco2" value={values.paco2} onChange={handleInputChange} placeholder="e.g., 40" className={`transition-all ${getStatusColor(parseFloat(values.paco2), 35, 45)}`} />
             </div>
             <div>
               <div className="flex items-center space-x-2 mb-1">
                 <label htmlFor="hco3" className="text-sm font-medium text-gray-600 dark:text-gray-300">HCO₃⁻ (22-26 mEq/L)</label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Bicarbonate level; indicates metabolic function.</p>
-                  </TooltipContent>
-                </Tooltip>
+                <Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" /></TooltipTrigger><TooltipContent><p>Bicarbonate level; indicates metabolic function.</p></TooltipContent></Tooltip>
               </div>
               <Input type="number" name="hco3" id="hco3" value={values.hco3} onChange={handleInputChange} placeholder="e.g., 24" className={`transition-all ${getStatusColor(parseFloat(values.hco3), 22, 26)}`} />
             </div>
-            <div>
+            {/* Anion Gap Inputs */}
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="pao2" className="text-sm font-medium text-gray-600 dark:text-gray-300">PaO₂ (80-100 mmHg)</label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Partial pressure of oxygen; measures oxygen levels in the blood.</p>
-                  </TooltipContent>
-                </Tooltip>
+                <label htmlFor="na" className="text-sm font-medium text-gray-600 dark:text-gray-300">Na⁺ (135-145 mEq/L)</label>
+                <Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" /></TooltipTrigger><TooltipContent><p>Sodium level; a key electrolyte.</p></TooltipContent></Tooltip>
               </div>
-              <Input type="number" name="pao2" id="pao2" value={values.pao2} onChange={handleInputChange} placeholder="e.g., 95" className={`transition-all ${getStatusColor(parseFloat(values.pao2), 80, 100)}`} />
+              <Input type="number" name="na" id="na" value={values.na} onChange={handleInputChange} placeholder="e.g., 140" className={`transition-all ${getStatusColor(parseFloat(values.na), 135, 145)}`} />
             </div>
             <div>
               <div className="flex items-center space-x-2 mb-1">
-                <label htmlFor="sao2" className="text-sm font-medium text-gray-600 dark:text-gray-300">SaO₂ (95-100%)</label>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Oxygen saturation; percentage of hemoglobin carrying oxygen.</p>
-                  </TooltipContent>
-                </Tooltip>
+                <label htmlFor="cl" className="text-sm font-medium text-gray-600 dark:text-gray-300">Cl⁻ (96-106 mEq/L)</label>
+                <Tooltip><TooltipTrigger asChild><HelpCircle className="h-4 w-4 text-gray-400 cursor-pointer" /></TooltipTrigger><TooltipContent><p>Chloride level; another key electrolyte.</p></TooltipContent></Tooltip>
               </div>
-              <Input type="number" name="sao2" id="sao2" value={values.sao2} onChange={handleInputChange} placeholder="e.g., 98" className={`transition-all ${getStatusColor(parseFloat(values.sao2), 95, 100)}`} />
+              <Input type="number" name="cl" id="cl" value={values.cl} onChange={handleInputChange} placeholder="e.g., 100" className={`transition-all ${getStatusColor(parseFloat(values.cl), 96, 106)}`} />
             </div>
           </div>
-          <div className="flex flex-col justify-between">
-            {interpretation && (
-              <div className="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-lg space-y-3 animate-fade-in">
-                <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Interpretation</h3>
-                <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Acid-Base:</span> {interpretation.acidBaseStatus}</p>
-                <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Disorder:</span> {interpretation.primaryDisorder}</p>
-                <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Compensation:</span> {interpretation.compensation}</p>
-                <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Oxygenation:</span> {interpretation.oxygenation}</p>
-                <div className="pt-2 mt-2 border-t border-blue-200 dark:border-blue-800">
-                  <p className="font-bold text-blue-800 dark:text-blue-300">{interpretation.summary}</p>
+          <div className="flex flex-col justify-between space-y-4">
+            <div className="space-y-4">
+              {interpretation && (
+                <div className="bg-blue-50 dark:bg-blue-900/50 p-4 rounded-lg space-y-3 animate-fade-in">
+                  <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">ABG Interpretation</h3>
+                  <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Acid-Base:</span> {interpretation.acidBaseStatus}</p>
+                  <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Disorder:</span> {interpretation.primaryDisorder}</p>
+                  <p className="text-gray-700 dark:text-gray-300"><span className="font-medium">Compensation:</span> {interpretation.compensation}</p>
+                  <div className="pt-2 mt-2 border-t border-blue-200 dark:border-blue-800">
+                    <p className="font-bold text-blue-800 dark:text-blue-300">{interpretation.summary}</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+              {anionGapResult && (
+                <div className="bg-indigo-50 dark:bg-indigo-900/50 p-4 rounded-lg space-y-3 animate-fade-in">
+                  <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Anion Gap</h3>
+                  <div className="flex items-center justify-between">
+                    <p className="text-2xl font-bold text-indigo-800 dark:text-indigo-300">{anionGapResult.value} <span className="text-sm font-normal">mEq/L</span></p>
+                    <Badge variant={anionGapResult.color}>{anionGapResult.status}</Badge>
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{anionGapResult.interpretation}</p>
+                </div>
+              )}
+            </div>
             <div className="flex w-full items-center space-x-2 mt-4">
               <Button onClick={handleReset} variant="outline" className="flex-1">
                 Reset
               </Button>
-              {interpretation && (
+              {(interpretation || anionGapResult) && (
                 <Button onClick={handleCopy} className="flex-1">
                   <Copy className="mr-2 h-4 w-4" />
                   Copy Summary

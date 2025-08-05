@@ -369,9 +369,9 @@ export const AbgAnalyzer = () => {
     <div className="w-full">
       <PatientDetailsForm details={patientDetails} onChange={handlePatientDetailsChange} />
       
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         {/* Input Column */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-1 space-y-6">
           <Card className="w-full bg-white dark:bg-gray-800 shadow-custom border rounded-xl">
             <CardHeader>
               <CardTitle className="text-xl font-bold text-center text-gray-700 dark:text-gray-200">
@@ -404,34 +404,36 @@ export const AbgAnalyzer = () => {
                     </div>
                 )}
               </div>
-              <div className="space-y-4">
-                <SectionHeader icon={<Wind className="h-5 w-5 text-green-500" />} title="Oxygenation" />
-                <div>
-                  <label htmlFor="pao2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">PaO₂ (80-100 mmHg)</label>
-                  <Input type="number" name="pao2" id="pao2" value={values.pao2} onChange={handleInputChange} placeholder="e.g., 95" className={`transition-all ${getStatusColor(parseFloat(values.pao2), 80, 100)}`} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 pt-4 border-t">
+                <div className="space-y-4">
+                  <SectionHeader icon={<Wind className="h-5 w-5 text-green-500" />} title="Oxygenation" />
+                  <div>
+                    <label htmlFor="pao2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">PaO₂ (80-100 mmHg)</label>
+                    <Input type="number" name="pao2" id="pao2" value={values.pao2} onChange={handleInputChange} placeholder="e.g., 95" className={`transition-all ${getStatusColor(parseFloat(values.pao2), 80, 100)}`} />
+                  </div>
+                  <div>
+                    <label htmlFor="fio2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">FiO₂ (0.21-1.0)</label>
+                    <Input type="number" name="fio2" id="fio2" value={values.fio2} onChange={handleInputChange} placeholder="e.g., 0.21" step="0.01" />
+                  </div>
+                  <div>
+                      <div className="flex items-center justify-between mb-1"><label htmlFor="patm" className="text-sm font-medium text-gray-600 dark:text-gray-300">Barometric Pressure</label><span className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{patm} mmHg</span></div>
+                      <Slider id="patm" value={[patm]} onValueChange={(val) => setPatm(val[0])} min={500} max={800} step={5} />
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Adjust for altitude.</p>
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="fio2" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">FiO₂ (0.21-1.0)</label>
-                  <Input type="number" name="fio2" id="fio2" value={values.fio2} onChange={handleInputChange} placeholder="e.g., 0.21" step="0.01" />
-                </div>
-                <div>
-                    <div className="flex items-center justify-between mb-1"><label htmlFor="patm" className="text-sm font-medium text-gray-600 dark:text-gray-300">Barometric Pressure</label><span className="text-sm font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{patm} mmHg</span></div>
-                    <Slider id="patm" value={[patm]} onValueChange={(val) => setPatm(val[0])} min={500} max={800} step={5} />
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Adjust for altitude (Sea level ~760 mmHg).</p>
+                <div className="space-y-4">
+                  <SectionHeader icon={<FlaskConical className="h-5 w-5 text-purple-500" />} title="Anion Gap" />
+                  <div>
+                    <label htmlFor="na" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Na⁺ (135-145 mEq/L)</label>
+                    <Input type="number" name="na" id="na" value={values.na} onChange={handleInputChange} placeholder="e.g., 140" className={`transition-all ${getStatusColor(parseFloat(values.na), 135, 145)}`} />
+                  </div>
+                  <div>
+                    <label htmlFor="cl" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Cl⁻ (96-106 mEq/L)</label>
+                    <Input type="number" name="cl" id="cl" value={values.cl} onChange={handleInputChange} placeholder="e.g., 100" className={`transition-all ${getStatusColor(parseFloat(values.cl), 96, 106)}`} />
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4">
-                <SectionHeader icon={<FlaskConical className="h-5 w-5 text-purple-500" />} title="Electrolytes for Anion Gap" />
-                <div>
-                  <label htmlFor="na" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Na⁺ (135-145 mEq/L)</label>
-                  <Input type="number" name="na" id="na" value={values.na} onChange={handleInputChange} placeholder="e.g., 140" className={`transition-all ${getStatusColor(parseFloat(values.na), 135, 145)}`} />
-                </div>
-                <div>
-                  <label htmlFor="cl" className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1 block">Cl⁻ (96-106 mEq/L)</label>
-                  <Input type="number" name="cl" id="cl" value={values.cl} onChange={handleInputChange} placeholder="e.g., 100" className={`transition-all ${getStatusColor(parseFloat(values.cl), 96, 106)}`} />
-                </div>
-              </div>
-              <div className="flex w-full items-center space-x-2 pt-4">
+              <div className="flex w-full items-center space-x-2 pt-4 border-t">
                 <Button onClick={handleReset} variant="outline" className="flex-1">Reset</Button>
                 <Button onClick={handleCopy} className="flex-1"><Copy className="mr-2 h-4 w-4" />Copy Summary</Button>
               </div>
@@ -440,7 +442,7 @@ export const AbgAnalyzer = () => {
         </div>
 
         {/* Results Column */}
-        <div className="lg:col-span-3">
+        <div className="lg:col-span-1">
           <div className="sticky top-8 space-y-4">
             {showResults ? (
               <>

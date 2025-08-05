@@ -1,17 +1,17 @@
 import { AbgAnalyzer } from "@/components/AbgAnalyzer";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { MadeWithDyad } from "@/components/made-with-dyad";
+import { Footer } from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col items-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col">
       <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
-      <div className="w-full max-w-6xl mx-auto space-y-8 py-8">
+      <main className="flex-grow w-full max-w-6xl mx-auto px-4 py-8">
         <AbgAnalyzer />
-      </div>
-      <MadeWithDyad />
+      </main>
+      <Footer />
     </div>
   );
 };

@@ -1,12 +1,12 @@
 import { AbgAnalyzer } from "@/components/AbgAnalyzer";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { AccessibilityMenu } from "@/components/AccessibilityMenu";
 import { Footer } from "@/components/Footer";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col">
       <div className="absolute top-6 right-6">
-        <ThemeToggle />
+        <AccessibilityMenu />
       </div>
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 py-12">
         <AbgAnalyzer />

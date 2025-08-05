@@ -1,5 +1,4 @@
 import { AbgAnalyzer } from "@/components/AbgAnalyzer";
-import { ReferenceChart } from "@/components/ReferenceChart";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { MadeWithDyad } from "@/components/made-with-dyad";
 
@@ -11,7 +10,6 @@ const Index = () => {
       </div>
       <div className="w-full max-w-2xl mx-auto space-y-8 py-8">
         <AbgAnalyzer />
-        <ReferenceChart />
       </div>
       <MadeWithDyad />
     </div>

@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Copy } from "lucide-react";
+import { showSuccess } from "@/utils/toast";
 
 type AbgValues = {
   ph: string;
@@ -117,6 +118,13 @@ export const AbgAnalyzer = () => {
     return { acidBaseStatus, primaryDisorder, compensation, oxygenation, summary };
   }, [values]);
 
+  const handleCopy = () => {
+    if (interpretation?.summary) {
+      navigator.clipboard.writeText(interpretation.summary);
+      showSuccess("Result summary copied to clipboard!");
+    }
+  };
+
   return (
     <Card className="w-full bg-white shadow-lg rounded-xl">
       <CardHeader>
@@ -211,9 +219,17 @@ export const AbgAnalyzer = () => {
                 </div>
               </div>
             )}
-            <Button onClick={handleReset} variant="outline" className="w-full mt-4">
-              Reset
-            </Button>
+            <div className="flex w-full items-center space-x-2 mt-4">
+              <Button onClick={handleReset} variant="outline" className="flex-1">
+                Reset
+              </Button>
+              {interpretation && (
+                <Button onClick={handleCopy} className="flex-1">
+                  <Copy className="mr-2 h-4 w-4" />
+                  Copy Summary
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>

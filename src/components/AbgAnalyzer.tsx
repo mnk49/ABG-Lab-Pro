@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { FileText, Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator, RefreshCw } from "lucide-react";
+import { FileText, Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator, RefreshCw, Printer } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import html2canvas from 'html2canvas';
+import { useReactToPrint } from 'react-to-print';
 import { PatientDetailsForm } from './PatientDetailsForm';
 import AbgReport from './AbgReport';
 
@@ -88,6 +89,12 @@ export const AbgAnalyzer = () => {
         });
     }
   };
+
+  const handlePrint = useReactToPrint({
+    content: () => reportRef.current,
+    documentTitle: `abg-report-${patientDetails.mrn || 'patient'}-${Date.now()}`,
+    onAfterPrint: () => showSuccess("Report sent to printer."),
+  });
 
   const interpretation: Interpretation | null = useMemo(() => {
     const ph = parseFloat(values.ph);
@@ -445,6 +452,7 @@ export const AbgAnalyzer = () => {
           <div className="flex flex-col sm:flex-row justify-center mt-4 gap-2 px-4 sm:px-0">
             <Button onClick={handleDownload}><Download className="mr-2 h-4 w-4" />Download as PNG</Button>
             <Button onClick={handleDownloadTxt} variant="outline"><FileText className="mr-2 h-4 w-4" />Download as TXT</Button>
+            <Button onClick={handlePrint} variant="outline"><Printer className="mr-2 h-4 w-4" />Print Report</Button>
           </div>
         </div>
       )}

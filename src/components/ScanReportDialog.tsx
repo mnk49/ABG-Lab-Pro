@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Loader2, Upload, Camera, X, Check } from 'lucide-react';
 import { analyzeAbgReport } from '@/lib/gemini';
 import { showError, showSuccess } from '@/utils/toast';
@@ -44,6 +43,7 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -149,20 +149,17 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
   const content = (
     <div className="space-y-4">
       {view === 'upload' && (
-        <div className="space-y-4">
-          <div className="grid w-full items-center gap-1.5">
-            <Label htmlFor="report-file">Upload from device</Label>
-            <Input id="report-file" type="file" onChange={handleFileChange} accept="image/*,.txt,.pdf" />
-          </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">Or</span></div>
-          </div>
-          <Button variant="outline" className="w-full" onClick={handleOpenCamera}>
-            <Camera className="mr-2 h-4 w-4" />
+        <div className="flex flex-col space-y-4 pt-4">
+          <Button variant="outline" className="w-full py-8 text-lg" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="mr-4 h-6 w-6" />
+            Upload File
+          </Button>
+          <Input ref={fileInputRef} id="report-file" type="file" onChange={handleFileChange} accept="image/*,.txt,.pdf" className="hidden" />
+          
+          <Button variant="outline" className="w-full py-8 text-lg" onClick={handleOpenCamera}>
+            <Camera className="mr-4 h-6 w-6" />
             Open Camera
           </Button>
-          {file && <p className="text-sm text-muted-foreground">Selected: {file.name}</p>}
         </div>
       )}
 
@@ -200,10 +197,24 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
         <div className="flex w-full gap-2 sm:gap-0 sm:space-x-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} className="w-full">Cancel</Button>
           <Button onClick={handleAnalyze} disabled={!file || isLoading} className="w-full">
-            {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>) : (<><Upload className="mr-2 h-4 w-4" />Analyze Report</>)}
+            {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>) : (<>Analyze with AI</>)}
           </Button>
         </div>
       )}
+    </>
+  );
+
+  const DialogTitleComponent = isMobile ? DrawerTitle : DialogTitle;
+  const DialogDescriptionComponent = isMobile ? DrawerDescription : DialogDescription;
+
+  const dialogHeaderContent = (
+    <>
+      <DialogTitleComponent>Scan Report with AI</DialogTitleComponent>
+      <DialogDescriptionComponent>
+        {view === 'upload' && "Choose a method to scan your report."}
+        {view === 'camera' && "Position the report in the frame and capture."}
+        {view === 'preview' && "Review the captured image."}
+      </DialogDescriptionComponent>
     </>
   );
 
@@ -212,12 +223,7 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
       <Drawer open={open} onOpenChange={handleOpenChange}>
         <DrawerContent>
           <DrawerHeader className="text-left">
-            <DrawerTitle>Scan ABG Report</DrawerTitle>
-            <DrawerDescription>
-              {view === 'upload' && "Upload an image, text, or PDF file, or use your camera."}
-              {view === 'camera' && "Position the report in the frame and capture."}
-              {view === 'preview' && "Review the captured image."}
-            </DrawerDescription>
+            {dialogHeaderContent}
           </DrawerHeader>
           <div className="px-4">{content}</div>
           <DrawerFooter className="pt-2">{footer}</DrawerFooter>
@@ -230,12 +236,7 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Scan ABG Report</DialogTitle>
-          <DialogDescription>
-            {view === 'upload' && "Upload an image, text, or PDF file, or use your camera."}
-            {view === 'camera' && "Position the report in the frame and capture."}
-            {view === 'preview' && "Review the captured image."}
-          </DialogDescription>
+          {dialogHeaderContent}
         </DialogHeader>
         {content}
         <DialogFooter>{footer}</DialogFooter>

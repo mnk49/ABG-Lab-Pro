@@ -51,7 +51,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col">
-      <header className="relative w-full text-center pt-12 pb-16 bg-gradient-to-b from-white to-transparent dark:from-gray-900/50 dark:to-transparent">
+      <header className="relative w-full text-center pt-16 pb-16 bg-gradient-to-b from-white to-transparent dark:from-gray-900/50 dark:to-transparent">
         <div className="absolute top-6 right-6 flex items-center gap-4">
           <div className="relative">
             <Button 

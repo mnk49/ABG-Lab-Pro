@@ -63,8 +63,8 @@ const Index = () => {
               <Scan className="h-[1.2rem] w-[1.2rem]" />
               <span className="sr-only">Scan Report</span>
             </Button>
-            <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md pointer-events-none animate-fade-in">
-              AI
+            <div className="absolute -top-2 -right-4 bg-primary text-primary-foreground text-[9px] font-bold px-2 py-0.5 rounded-full shadow-md pointer-events-none animate-fade-in whitespace-nowrap">
+              AI Powered
             </div>
           </div>
           <ThemeToggle />

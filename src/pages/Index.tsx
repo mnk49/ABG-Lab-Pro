@@ -6,11 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Scan } from "lucide-react";
 import { ScanReportDialog } from "@/components/ScanReportDialog";
 import { AbgValues, PatientDetails, PressureUnit } from "@/types";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const Index = () => {
   const [isScanDialogOpen, setScanDialogOpen] = useState(false);
@@ -57,19 +52,21 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col">
       <header className="relative w-full text-center pt-12 pb-16 bg-gradient-to-b from-white to-transparent dark:from-gray-900/50 dark:to-transparent">
-        <div className="absolute top-6 right-6 flex items-center gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => setScanDialogOpen(true)}>
-                <Scan className="h-[1.2rem] w-[1.2rem]" />
-                <span className="sr-only">Scan Report</span>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p className="font-semibold">AI Report Scanner</p>
-              <p className="text-xs text-muted-foreground">Use a clear image for best results.</p>
-            </TooltipContent>
-          </Tooltip>
+        <div className="absolute top-6 right-6 flex items-center gap-4">
+          <div className="relative">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setScanDialogOpen(true)}
+              className="hover:bg-transparent dark:hover:bg-transparent transition-transform duration-200 ease-in-out hover:scale-110"
+            >
+              <Scan className="h-[1.2rem] w-[1.2rem]" />
+              <span className="sr-only">Scan Report</span>
+            </Button>
+            <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-md pointer-events-none animate-fade-in">
+              AI
+            </div>
+          </div>
           <ThemeToggle />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-gray-100">

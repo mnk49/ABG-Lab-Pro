@@ -40,7 +40,7 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
       const extractedValues = await analyzeAbgReport(file);
       // Convert all values to string for the form fields
       const stringValues = Object.entries(extractedValues).reduce((acc, [key, value]) => {
-        acc[key] = String(value);
+        acc[key as keyof typeof acc] = String(value);
         return acc;
       }, {} as any);
 

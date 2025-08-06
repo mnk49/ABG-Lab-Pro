@@ -72,13 +72,13 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
         <DialogHeader>
           <DialogTitle>Scan ABG Report</DialogTitle>
           <DialogDescription>
-            Upload an image or text file of the report. The AI will attempt to extract the values.
+            Upload an image, text, or PDF file of the report. The AI will attempt to extract the values.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label htmlFor="report-file">Upload File</Label>
-            <Input id="report-file" type="file" onChange={handleFileChange} accept="image/*,.txt" />
+            <Input id="report-file" type="file" onChange={handleFileChange} accept="image/*,.txt,.pdf" />
           </div>
           {file && <p className="text-sm text-muted-foreground">Selected file: {file.name}</p>}
           {error && <p className="text-sm text-red-500">{error}</p>}

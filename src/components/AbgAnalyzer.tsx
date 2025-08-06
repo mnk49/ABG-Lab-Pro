@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,24 +12,7 @@ import { showSuccess } from "@/utils/toast";
 import html2canvas from 'html2canvas';
 import { PatientDetailsForm } from './PatientDetailsForm';
 import AbgReport from './AbgReport';
-
-type AbgValues = {
-  ph: string; paco2: string; hco3: string; pao2: string;
-  fio2: string; na: string; cl: string;
-};
-
-type PatientDetails = {
-  name: string; age: string; mrn: string; hospital: string;
-};
-
-type Interpretation = {
-  acidBaseStatus: string; primaryDisorder: string; compensation: string; summary: string;
-  compensationAnalysis: {
-    title: string; expected: string; actual: string; interpretation: string;
-  } | null;
-};
-
-type PressureUnit = 'mmHg' | 'kPa';
+import { AbgValues, PatientDetails, PressureUnit, Interpretation } from "@/types";
 
 const KPA_TO_MMHG = 7.50062;
 const normalRanges = {
@@ -50,16 +33,25 @@ const SectionHeader = ({ icon, title }: { icon: React.ReactNode, title: string }
   </div>
 );
 
-export const AbgAnalyzer = () => {
-  const [values, setValues] = useState<AbgValues>({
-    ph: "", paco2: "", hco3: "", pao2: "", fio2: "0.21", na: "", cl: "",
-  });
-  const [patientDetails, setPatientDetails] = useState<PatientDetails>({
-    name: "", age: "", mrn: "", hospital: "",
-  });
-  const [patm, setPatm] = useState(760);
-  const [respiratoryDuration, setRespiratoryDuration] = useState<'acute' | 'chronic'>('acute');
-  const [pressureUnit, setPressureUnit] = useState<PressureUnit>('mmHg');
+interface AbgAnalyzerProps {
+  values: AbgValues;
+  setValues: React.Dispatch<React.SetStateAction<AbgValues>>;
+  patientDetails: PatientDetails;
+  setPatientDetails: React.Dispatch<React.SetStateAction<PatientDetails>>;
+  patm: number;
+  setPatm: React.Dispatch<React.SetStateAction<number>>;
+  respiratoryDuration: 'acute' | 'chronic';
+  setRespiratoryDuration: React.Dispatch<React.SetStateAction<'acute' | 'chronic'>>;
+  pressureUnit: PressureUnit;
+  setPressureUnit: React.Dispatch<React.SetStateAction<PressureUnit>>;
+  onReset: () => void;
+}
+
+export const AbgAnalyzer = ({
+  values, setValues, patientDetails, setPatientDetails,
+  patm, setPatm, respiratoryDuration, setRespiratoryDuration,
+  pressureUnit, setPressureUnit, onReset
+}: AbgAnalyzerProps) => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -69,14 +61,6 @@ export const AbgAnalyzer = () => {
   const handlePatientDetailsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPatientDetails((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleReset = () => {
-    setValues({ ph: "", paco2: "", hco3: "", pao2: "", fio2: "0.21", na: "", cl: "" });
-    setPatientDetails({ name: "", age: "", mrn: "", hospital: "" });
-    setPatm(760);
-    setRespiratoryDuration('acute');
-    setPressureUnit('mmHg');
   };
 
   const handleDownload = () => {
@@ -391,7 +375,7 @@ export const AbgAnalyzer = () => {
                 </div>
               </div>
               <div className="flex w-full items-center space-x-2 pt-4 border-t">
-                <Button onClick={handleReset} variant="outline" className="flex-1"><RefreshCw className="mr-2 h-4 w-4" />Reset</Button>
+                <Button onClick={onReset} variant="outline" className="flex-1"><RefreshCw className="mr-2 h-4 w-4" />Reset</Button>
                 <Button onClick={handleCopy} className="flex-1"><Copy className="mr-2 h-4 w-4" />Copy Summary</Button>
               </div>
             </CardContent>

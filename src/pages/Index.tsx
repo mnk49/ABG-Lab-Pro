@@ -5,14 +5,48 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Scan } from "lucide-react";
 import { ScanReportDialog } from "@/components/ScanReportDialog";
+import { AbgValues, PatientDetails, PressureUnit } from "@/types";
 
 const Index = () => {
   const [isScanDialogOpen, setScanDialogOpen] = useState(false);
 
+  // All state for the analyzer is lifted here to be shared with other components
+  const [values, setValues] = useState<AbgValues>({
+    ph: "", paco2: "", hco3: "", pao2: "", fio2: "0.21", na: "", cl: "",
+  });
+  const [patientDetails, setPatientDetails] = useState<PatientDetails>({
+    name: "", age: "", mrn: "", hospital: "",
+  });
+  const [patm, setPatm] = useState(760);
+  const [respiratoryDuration, setRespiratoryDuration] = useState<'acute' | 'chronic'>('acute');
+  const [pressureUnit, setPressureUnit] = useState<PressureUnit>('mmHg');
+
+  const handleReset = () => {
+    setValues({ ph: "", paco2: "", hco3: "", pao2: "", fio2: "0.21", na: "", cl: "" });
+    setPatientDetails({ name: "", age: "", mrn: "", hospital: "" });
+    setPatm(760);
+    setRespiratoryDuration('acute');
+    setPressureUnit('mmHg');
+  };
+
   const handleScanComplete = (scannedData: any) => {
-    // This is temporarily disconnected. We can reconnect it later.
-    console.log("Scanned Data:", scannedData);
-    alert("Scan complete! This feature is being reconnected.");
+    const newAbgValues: Partial<AbgValues> = {};
+    const newPatientDetails: Partial<PatientDetails> = {};
+
+    const abgKeys: (keyof AbgValues)[] = ['ph', 'paco2', 'hco3', 'pao2', 'fio2', 'na', 'cl'];
+    const patientKeys: (keyof PatientDetails)[] = ['name', 'age', 'mrn', 'hospital'];
+
+    for (const key in scannedData) {
+      if (abgKeys.includes(key as keyof AbgValues)) {
+        newAbgValues[key as keyof AbgValues] = String(scannedData[key] ?? '');
+      }
+      if (patientKeys.includes(key as keyof PatientDetails)) {
+        newPatientDetails[key as keyof PatientDetails] = String(scannedData[key] ?? '');
+      }
+    }
+
+    setValues(prev => ({ ...prev, ...newAbgValues }));
+    setPatientDetails(prev => ({ ...prev, ...newPatientDetails }));
   };
 
   return (
@@ -38,7 +72,19 @@ const Index = () => {
         </div>
       </header>
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 pb-12">
-        <AbgAnalyzer />
+        <AbgAnalyzer
+          values={values}
+          setValues={setValues}
+          patientDetails={patientDetails}
+          setPatientDetails={setPatientDetails}
+          patm={patm}
+          setPatm={setPatm}
+          respiratoryDuration={respiratoryDuration}
+          setRespiratoryDuration={setRespiratoryDuration}
+          pressureUnit={pressureUnit}
+          setPressureUnit={setPressureUnit}
+          onReset={handleReset}
+        />
       </main>
       <Footer />
       <ScanReportDialog 

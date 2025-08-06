@@ -92,7 +92,7 @@ export const AbgAnalyzer = () => {
 
   const handlePrint = useReactToPrint({
     content: () => reportRef.current,
-    documentTitle: `abg-report-${patientDetails.mrn || 'patient'}-${Date.now()}`,
+    documentTitle: `ABG Report - ${patientDetails.name || patientDetails.mrn || 'Patient'}`,
     onAfterPrint: () => showSuccess("Report sent to printer."),
   });
 

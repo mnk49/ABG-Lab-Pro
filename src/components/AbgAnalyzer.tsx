@@ -356,7 +356,7 @@ export const AbgAnalyzer = () => {
                         <ToggleGroup type="single" value={respiratoryDuration} onValueChange={(value) => { if (value) setRespiratoryDuration(value as 'acute' | 'chronic'); }} className="w-full grid grid-cols-2">
                             <ToggleGroupItem value="acute">Acute</ToggleGroupItem>
                             <ToggleGroupItem value="chronic">Chronic</ToggleGroupItem>
-                        </ToggleG>
+                        </ToggleGroup>
                         <p className="text-xs text-gray-500 dark:text-gray-400 italic">Select to calculate expected metabolic compensation.</p>
                     </div>
                 )}

@@ -73,6 +73,9 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
 
   return (
     <div ref={ref} className="bg-white dark:bg-gray-900 p-6 sm:p-8 font-sans text-gray-800 dark:text-gray-100 shadow-2xl rounded-lg border">
+      <div className="text-center mb-2">
+        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">🩸 ABG Lab Pro</p>
+      </div>
       <header className="text-center mb-4">
         <h1 className="text-xl font-bold tracking-wider">ARTERIAL BLOOD GAS ANALYSIS</h1>
         <p className="text-sm text-gray-600 dark:text-gray-400">{patientDetails.hospital || 'Clinical Laboratory'}</p>

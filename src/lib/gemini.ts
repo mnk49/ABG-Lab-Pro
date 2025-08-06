@@ -1,16 +1,5 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-
-if (!API_KEY) {
-  throw new Error("VITE_GEMINI_API_KEY is not set. Please add it to your .env.local file.");
-}
-
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
-});
-
 const generationConfig = {
   temperature: 0.2,
   topP: 0.95,
@@ -39,6 +28,17 @@ async function fileToGenerativePart(file: File) {
 }
 
 export async function analyzeAbgReport(file: File) {
+  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+
+  if (!API_KEY) {
+    throw new Error("Gemini API key is not configured. This feature is unavailable.");
+  }
+
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+  });
+  
   const filePart = await fileToGenerativePart(file);
   
   const prompt = `

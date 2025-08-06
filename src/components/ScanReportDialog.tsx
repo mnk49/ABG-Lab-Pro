@@ -63,8 +63,17 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
     setError(null);
 
     try {
-      const extractedValues = await analyzeAbgReport(file);
-      const stringValues = Object.entries(extractedValues).reduce((acc, [key, value]) => {
+      const analysisPromise = analyzeAbgReport(file);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("AI analysis timed out after 30 seconds.")), 30000)
+      );
+
+      const extractedValues = await Promise.race([
+        analysisPromise,
+        timeoutPromise,
+      ]);
+
+      const stringValues = Object.entries(extractedValues as object).reduce((acc, [key, value]) => {
         acc[key as keyof typeof acc] = String(value);
         return acc;
       }, {} as any);

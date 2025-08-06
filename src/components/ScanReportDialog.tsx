@@ -83,22 +83,8 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
       onOpenChange(false);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
-      if (errorMessage.includes("API key is not configured")) {
-        const specificError = (
-          <div className="text-center text-destructive bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800/50">
-            <KeyRound className="mx-auto h-8 w-8 mb-2" />
-            <p className="font-semibold">Configuration Needed</p>
-            <p className="text-sm mt-1">
-              The AI feature requires a Google Gemini API key. Please add it as an environment variable named <code className="font-mono bg-red-100 dark:bg-red-900/50 px-1 py-0.5 rounded">VITE_GEMINI_API_KEY</code> in your project settings.
-            </p>
-          </div>
-        );
-        setError(specificError);
-        showError("Gemini API key is missing.");
-      } else {
-        showError(errorMessage);
-        setError(errorMessage);
-      }
+      showError(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

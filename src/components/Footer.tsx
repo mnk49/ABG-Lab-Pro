@@ -20,16 +20,6 @@ export const Footer = () => {
             </a>.
           </p>
         </div>
-        <div>
-          <a
-            href="https://pk.linkedin.com/in/muneebnazeem"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-mono text-sm text-gray-600 dark:text-gray-400 no-underline hover:text-gray-900 dark:hover:text-gray-100 transition-colors border border-gray-300 dark:border-gray-700 rounded-md px-3 py-2"
-          >
-            Built with ❤️ — Muneeb
-          </a>
-        </div>
       </div>
     </footer>
   );

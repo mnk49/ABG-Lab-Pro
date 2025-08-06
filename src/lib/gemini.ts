@@ -62,19 +62,37 @@ export async function analyzeAbgReport(file: File) {
     Only return the JSON object.
   `;
 
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts: [filePart, { text: prompt }] }],
-    generationConfig,
-    safetySettings,
-  });
+  const maxRetries = 3;
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [filePart, { text: prompt }] }],
+        generationConfig,
+        safetySettings,
+      });
 
-  const responseText = result.response.text();
-  try {
-    // The response might be wrapped in markdown ```json ... ```
-    const jsonString = responseText.replace(/```json\n?|```/g, '').trim();
-    return JSON.parse(jsonString);
-  } catch (e) {
-    console.error("Failed to parse Gemini response:", responseText);
-    throw new Error("AI failed to return a valid report. The format might be unsupported.");
+      const responseText = result.response.text();
+      try {
+        const jsonString = responseText.replace(/```json\n?|```/g, '').trim();
+        return JSON.parse(jsonString); // Success!
+      } catch (e) {
+        console.error("Failed to parse Gemini response:", responseText);
+        throw new Error("AI failed to return a valid report. The format might be unsupported.");
+      }
+    } catch (error: any) {
+      const isOverloaded = error.message && (error.message.includes('503') || error.message.includes('overloaded'));
+      
+      if (isOverloaded && attempt < maxRetries) {
+        const delay = Math.pow(2, attempt) * 500; // 1s, 2s
+        console.warn(`AI model is overloaded. Retrying in ${delay / 1000}s... (Attempt ${attempt}/${maxRetries})`);
+        await new Promise(res => setTimeout(res, delay));
+      } else {
+        if (isOverloaded) {
+          throw new Error("The AI model is still overloaded after several retries. Please try again later.");
+        }
+        throw error;
+      }
+    }
   }
+  throw new Error("AI analysis failed after multiple attempts.");
 }

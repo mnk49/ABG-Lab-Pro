@@ -1,12 +1,49 @@
+import { useState } from "react";
 import { AbgAnalyzer } from "@/components/AbgAnalyzer";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Footer } from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Scan } from "lucide-react";
+import { ScanReportDialog } from "@/components/ScanReportDialog";
 
 const Index = () => {
+  const [values, setValues] = useState({
+    ph: "", paco2: "", hco3: "", pao2: "", fio2: "0.21", na: "", cl: "",
+  });
+  const [patientDetails, setPatientDetails] = useState({
+    name: "", age: "", mrn: "", hospital: "",
+  });
+  const [isScanDialogOpen, setScanDialogOpen] = useState(false);
+
+  const handleScanComplete = (scannedData: any) => {
+    // Update patient details and lab values from scanned data
+    const newPatientDetails = { ...patientDetails };
+    const newValues = { ...values };
+
+    Object.keys(patientDetails).forEach(key => {
+      if (scannedData[key]) {
+        newPatientDetails[key as keyof typeof patientDetails] = scannedData[key];
+      }
+    });
+
+    Object.keys(values).forEach(key => {
+      if (scannedData[key]) {
+        newValues[key as keyof typeof values] = scannedData[key];
+      }
+    });
+
+    setPatientDetails(newPatientDetails);
+    setValues(newValues);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col">
       <header className="relative w-full text-center pt-12 pb-16 bg-gradient-to-b from-white to-transparent dark:from-gray-900/50 dark:to-transparent">
-        <div className="absolute top-6 right-6">
+        <div className="absolute top-6 right-6 flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => setScanDialogOpen(true)}>
+            <Scan className="h-[1.2rem] w-[1.2rem]" />
+            <span className="sr-only">Scan Report</span>
+          </Button>
           <ThemeToggle />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-gray-100">
@@ -22,9 +59,19 @@ const Index = () => {
         </div>
       </header>
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 pb-12">
-        <AbgAnalyzer />
+        <AbgAnalyzer 
+          values={values}
+          setValues={setValues}
+          patientDetails={patientDetails}
+          setPatientDetails={setPatientDetails}
+        />
       </main>
       <Footer />
+      <ScanReportDialog 
+        open={isScanDialogOpen}
+        onOpenChange={setScanDialogOpen}
+        onScanComplete={handleScanComplete}
+      />
     </div>
   );
 };

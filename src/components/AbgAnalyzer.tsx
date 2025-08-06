@@ -18,6 +18,17 @@ type AbgValues = {
   fio2: string; na: string; cl: string;
 };
 
+type PatientDetails = {
+  name: string; age: string; mrn: string; hospital: string;
+};
+
+interface AbgAnalyzerProps {
+  values: AbgValues;
+  setValues: React.Dispatch<React.SetStateAction<AbgValues>>;
+  patientDetails: PatientDetails;
+  setPatientDetails: React.Dispatch<React.SetStateAction<PatientDetails>>;
+}
+
 type Interpretation = {
   acidBaseStatus: string; primaryDisorder: string; compensation: string; summary: string;
   compensationAnalysis: {
@@ -46,13 +57,7 @@ const SectionHeader = ({ icon, title }: { icon: React.ReactNode, title: string }
   </div>
 );
 
-export const AbgAnalyzer = () => {
-  const [values, setValues] = useState<AbgValues>({
-    ph: "", paco2: "", hco3: "", pao2: "", fio2: "0.21", na: "", cl: "",
-  });
-  const [patientDetails, setPatientDetails] = useState({
-    name: "", age: "", mrn: "", hospital: "",
-  });
+export const AbgAnalyzer = ({ values, setValues, patientDetails, setPatientDetails }: AbgAnalyzerProps) => {
   const [patm, setPatm] = useState(760);
   const [respiratoryDuration, setRespiratoryDuration] = useState<'acute' | 'chronic'>('acute');
   const [pressureUnit, setPressureUnit] = useState<PressureUnit>('mmHg');

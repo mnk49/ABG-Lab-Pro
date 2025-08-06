@@ -442,7 +442,7 @@ export const AbgAnalyzer = () => {
       {showResults && (
         <div className="mt-8">
           <AbgReport ref={reportRef} patientDetails={patientDetails} abgValues={values} interpretation={interpretation} oxygenationResult={oxygenationResult} anionGapResult={anionGapResult} pressureUnit={pressureUnit} />
-          <div className="flex justify-center mt-4 space-x-2">
+          <div className="flex flex-col sm:flex-row justify-center mt-4 gap-2 px-4 sm:px-0">
             <Button onClick={handleDownload}><Download className="mr-2 h-4 w-4" />Download as PNG</Button>
             <Button onClick={handleDownloadTxt} variant="outline"><FileText className="mr-2 h-4 w-4" />Download as TXT</Button>
           </div>

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, ReactNode } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Upload, Camera, X, Check } from 'lucide-react';
+import { Loader2, Upload, Camera, X, Check, KeyRound } from 'lucide-react';
 import { analyzeAbgReport } from '@/lib/gemini';
 import { showError, showSuccess } from '@/utils/toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -36,7 +36,7 @@ function dataURLtoFile(dataurl: string, filename: string): File {
 export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanReportDialogProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ReactNode | null>(null);
   const [view, setView] = useState<'upload' | 'camera' | 'preview'>('upload');
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -74,8 +74,22 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
       onOpenChange(false);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "An unknown error occurred.";
-      showError(errorMessage);
-      setError(errorMessage);
+      if (errorMessage.includes("API key is not configured")) {
+        const specificError = (
+          <div className="text-center text-destructive bg-red-50 dark:bg-red-900/20 p-4 rounded-lg border border-red-200 dark:border-red-800/50">
+            <KeyRound className="mx-auto h-8 w-8 mb-2" />
+            <p className="font-semibold">Configuration Needed</p>
+            <p className="text-sm mt-1">
+              The AI feature requires a Google Gemini API key. Please add it as an environment variable named <code className="font-mono bg-red-100 dark:bg-red-900/50 px-1 py-0.5 rounded">VITE_GEMINI_API_KEY</code> in your project settings.
+            </p>
+          </div>
+        );
+        setError(specificError);
+        showError("Gemini API key is missing.");
+      } else {
+        showError(errorMessage);
+        setError(errorMessage);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -185,7 +199,7 @@ export const ScanReportDialog = ({ open, onOpenChange, onScanComplete }: ScanRep
         </div>
       )}
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <div>{error}</div>}
     </div>
   );
 

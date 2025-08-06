@@ -73,18 +73,16 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
 
   return (
     <div ref={ref} className="bg-white dark:bg-gray-900 p-6 sm:p-8 font-sans text-gray-800 dark:text-gray-100 shadow-2xl rounded-lg border">
-      <div className="text-center mb-2">
-        <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">🩸 ABG Lab Pro</p>
-      </div>
       <header className="text-center mb-4">
-        <h1 className="text-xl font-bold tracking-wider">ARTERIAL BLOOD GAS ANALYSIS</h1>
-        <p className="text-sm text-gray-600 dark:text-gray-400">{patientDetails.hospital || 'Clinical Laboratory'}</p>
+        <h1 className="text-xl font-bold">🩸 ABG Lab Pro</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 tracking-wider">ARTERIAL BLOOD GAS ANALYSIS</p>
       </header>
       
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-2 text-sm mb-4 border-y border-gray-200 dark:border-gray-700 py-3">
+      <section className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2 text-sm mb-4 border-y border-gray-200 dark:border-gray-700 py-3">
         <div><span className="font-semibold text-gray-600 dark:text-gray-400">Patient:</span> {patientDetails.name || 'N/A'}</div>
         <div><span className="font-semibold text-gray-600 dark:text-gray-400">MRN:</span> {patientDetails.mrn || 'N/A'}</div>
         <div><span className="font-semibold text-gray-600 dark:text-gray-400">Age:</span> {patientDetails.age || 'N/A'}</div>
+        <div className="md:col-span-2"><span className="font-semibold text-gray-600 dark:text-gray-400">Hospital:</span> {patientDetails.hospital || 'N/A'}</div>
         <div><span className="font-semibold text-gray-600 dark:text-gray-400">Date:</span> {new Date().toLocaleString()}</div>
       </section>
 

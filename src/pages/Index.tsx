@@ -7,33 +7,12 @@ import { Scan } from "lucide-react";
 import { ScanReportDialog } from "@/components/ScanReportDialog";
 
 const Index = () => {
-  const [values, setValues] = useState({
-    ph: "", paco2: "", hco3: "", pao2: "", fio2: "0.21", na: "", cl: "",
-  });
-  const [patientDetails, setPatientDetails] = useState({
-    name: "", age: "", mrn: "", hospital: "",
-  });
   const [isScanDialogOpen, setScanDialogOpen] = useState(false);
 
   const handleScanComplete = (scannedData: any) => {
-    // Update patient details and lab values from scanned data
-    const newPatientDetails = { ...patientDetails };
-    const newValues = { ...values };
-
-    Object.keys(patientDetails).forEach(key => {
-      if (scannedData[key]) {
-        newPatientDetails[key as keyof typeof patientDetails] = scannedData[key];
-      }
-    });
-
-    Object.keys(values).forEach(key => {
-      if (scannedData[key]) {
-        newValues[key as keyof typeof values] = scannedData[key];
-      }
-    });
-
-    setPatientDetails(newPatientDetails);
-    setValues(newValues);
+    // This is temporarily disconnected. We can reconnect it later.
+    console.log("Scanned Data:", scannedData);
+    alert("Scan complete! This feature is being reconnected.");
   };
 
   return (
@@ -59,12 +38,7 @@ const Index = () => {
         </div>
       </header>
       <main className="flex-grow w-full max-w-6xl mx-auto px-4 pb-12">
-        <AbgAnalyzer 
-          values={values}
-          setValues={setValues}
-          patientDetails={patientDetails}
-          setPatientDetails={setPatientDetails}
-        />
+        <AbgAnalyzer />
       </main>
       <Footer />
       <ScanReportDialog 

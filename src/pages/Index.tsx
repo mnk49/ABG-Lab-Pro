@@ -6,6 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Scan } from "lucide-react";
 import { ScanReportDialog } from "@/components/ScanReportDialog";
 import { AbgValues, PatientDetails, PressureUnit } from "@/types";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Index = () => {
   const [isScanDialogOpen, setScanDialogOpen] = useState(false);
@@ -53,10 +58,18 @@ const Index = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-background flex flex-col">
       <header className="relative w-full text-center pt-12 pb-16 bg-gradient-to-b from-white to-transparent dark:from-gray-900/50 dark:to-transparent">
         <div className="absolute top-6 right-6 flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setScanDialogOpen(true)}>
-            <Scan className="h-[1.2rem] w-[1.2rem]" />
-            <span className="sr-only">Scan Report</span>
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={() => setScanDialogOpen(true)}>
+                <Scan className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Scan Report</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="font-semibold">AI Report Scanner</p>
+              <p className="text-xs text-muted-foreground">Use a clear image for best results.</p>
+            </TooltipContent>
+          </Tooltip>
           <ThemeToggle />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-800 dark:text-gray-100">

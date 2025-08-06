@@ -102,3 +102,23 @@
     font-family: 'Inter', sans-serif;
   }
 }
+
+@layer utilities {
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    .printable-section, .printable-section * {
+      visibility: visible;
+    }
+    .printable-section {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+    .no-print {
+      display: none !important;
+    }
+  }
+}

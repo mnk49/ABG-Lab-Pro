@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,6 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { FileText, Copy, Download, Beaker, Wind, FlaskConical, ClipboardList, GitCompareArrows, Gauge, Calculator, RefreshCw, Printer } from "lucide-react";
 import { showSuccess } from "@/utils/toast";
 import html2canvas from 'html2canvas';
-import { useReactToPrint } from 'react-to-print';
 import { PatientDetailsForm } from './PatientDetailsForm';
 import AbgReport from './AbgReport';
 
@@ -57,7 +56,6 @@ export const AbgAnalyzer = () => {
   const [patm, setPatm] = useState(760);
   const [respiratoryDuration, setRespiratoryDuration] = useState<'acute' | 'chronic'>('acute');
   const [pressureUnit, setPressureUnit] = useState<PressureUnit>('mmHg');
-  const reportRef = useRef<HTMLDivElement>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -78,9 +76,12 @@ export const AbgAnalyzer = () => {
   };
 
   const handleDownload = () => {
-    if (reportRef.current) {
+    const reportElement = document.querySelector('.printable-section');
+    if (reportElement) {
       showSuccess("Generating report...");
-      html2canvas(reportRef.current, { scale: 2, backgroundColor: null, useCORS: true })
+      html2canvas(reportElement as HTMLElement, { scale: 2, backgroundColor: null, useCORS: true, onclone: (document) => {
+        document.querySelector('.no-print')?.remove();
+      }})
         .then((canvas) => {
           const link = document.createElement('a');
           link.download = `abg-report-${patientDetails.mrn || 'patient'}-${Date.now()}.png`;
@@ -90,11 +91,9 @@ export const AbgAnalyzer = () => {
     }
   };
 
-  const handlePrint = useReactToPrint({
-    content: () => reportRef.current,
-    documentTitle: `ABG Report - ${patientDetails.name || patientDetails.mrn || 'Patient'}`,
-    onAfterPrint: () => showSuccess("Report sent to printer."),
-  });
+  const handlePrint = () => {
+    window.print();
+  };
 
   const interpretation: Interpretation | null = useMemo(() => {
     const ph = parseFloat(values.ph);
@@ -447,9 +446,9 @@ export const AbgAnalyzer = () => {
       </div>
 
       {showResults && (
-        <div className="mt-8">
-          <AbgReport ref={reportRef} patientDetails={patientDetails} abgValues={values} interpretation={interpretation} oxygenationResult={oxygenationResult} anionGapResult={anionGapResult} pressureUnit={pressureUnit} />
-          <div className="flex flex-col sm:flex-row justify-center mt-4 gap-2 px-4 sm:px-0">
+        <div className="mt-8 printable-section">
+          <AbgReport patientDetails={patientDetails} abgValues={values} interpretation={interpretation} oxygenationResult={oxygenationResult} anionGapResult={anionGapResult} pressureUnit={pressureUnit} />
+          <div className="flex flex-col sm:flex-row justify-center mt-4 gap-2 px-4 sm:px-0 no-print">
             <Button onClick={handleDownload}><Download className="mr-2 h-4 w-4" />Download as PNG</Button>
             <Button onClick={handleDownloadTxt} variant="outline"><FileText className="mr-2 h-4 w-4" />Download as TXT</Button>
             <Button onClick={handlePrint} variant="outline"><Printer className="mr-2 h-4 w-4" />Print Report</Button>

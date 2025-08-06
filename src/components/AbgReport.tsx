@@ -50,9 +50,9 @@ const TableSectionHeader = ({ title }: { title: string }) => (
   </div>
 );
 
-const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
+const AbgReport: React.FC<AbgReportProps> = ({
   patientDetails, abgValues, interpretation, oxygenationResult, anionGapResult, pressureUnit
-}, ref) => {
+}) => {
 
   const fullInterpretation = [
     interpretation?.summary,
@@ -72,7 +72,7 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
   const anionGapFlag = getFlag(anionGapResult?.value, 4, 12);
 
   return (
-    <div ref={ref} className="bg-white dark:bg-gray-900 p-6 sm:p-8 font-sans text-gray-800 dark:text-gray-100 shadow-2xl rounded-lg border">
+    <div className="bg-white dark:bg-gray-900 p-6 sm:p-8 font-sans text-gray-800 dark:text-gray-100 shadow-2xl rounded-lg border">
       <header className="text-center mb-4">
         <h1 className="text-xl font-bold">🩸 ABG Lab Pro</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 tracking-wider">ARTERIAL BLOOD GAS ANALYSIS</p>
@@ -132,6 +132,6 @@ const AbgReport = React.forwardRef<HTMLDivElement, AbgReportProps>(({
       </footer>
     </div>
   );
-});
+};
 
 export default AbgReport;
